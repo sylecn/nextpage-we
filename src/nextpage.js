@@ -18,7 +18,9 @@
 // section 4, provided you include this license notice and a URL
 // through which recipients can access the Corresponding Source.
 
+/* global Iterator, KeyEvent */
 (function () {
+    let i;
     let variables = {};
 
     let debugging = function () {return variables.debugging;};
@@ -31,6 +33,7 @@
         return variables.debugContentEditable;
     };
     let debugIFrame = function () {return variables.debugIFrame;};
+    // eslint-disable-next-line no-console
     let log = console.log;
 
     /**
@@ -298,16 +301,16 @@
 
         // convert anchor (link) object to string
         linkToString: function (l) {
-	    let re, prop;
-	    re = "link = {\n";
-	    prop = ["rel", "accessKey", "title", "href", "onclick",
-		    "innerHTML", "id", "name"];
-	    for (let i = 0; i < prop.length; i++) {
-	        if (l.hasAttribute(prop[i])) {
-		    re += prop[i] + ": " + l.getAttribute(prop[i]) + ",\n";
-	        }
-	    }
-	    return re + "}";
+            let re, prop;
+            re = "link = {\n";
+            prop = ["rel", "accessKey", "title", "href", "onclick",
+                    "innerHTML", "id", "name"];
+            for (let i = 0; i < prop.length; i++) {
+                if (l.hasAttribute(prop[i])) {
+                    re += prop[i] + ": " + l.getAttribute(prop[i]) + ",\n";
+                }
+            }
+            return re + "}";
         }
     };
 
@@ -333,7 +336,7 @@
             generator = utils.getMeta("generator");
             if (! generator) {
                 return false;
-            };
+            }
             if (generator.match(/^Discuz! X/)) {
                 className = "nxt";
             } else if (generator.match(/^Discuz! /)) {
@@ -469,6 +472,7 @@
             return true;
         }
 
+        // eslint-disable-next-line no-useless-escape
         var domainPattern = /^([^:]+):\/\/\/?([^:\/]+)/;
         var matchResult = domainPattern.exec(url);
 
@@ -543,7 +547,7 @@
         // check domain
         if (l.hasAttribute("href")) {
             if (! checkDomain(l.getAttribute("href"))) {
-                debugLog("link ignored because domain check failed: " + l.outerHTML)
+                debugLog("link ignored because domain check failed: " + l.outerHTML);
                 return false;
             }
         }
@@ -569,7 +573,7 @@
                 return true;
         }
 
-        debugLog("link ignored because no signs of nextpage found: " + l.outerHTML)
+        debugLog("link ignored because no signs of nextpage found: " + l.outerHTML);
         return false;
     };
 
@@ -609,8 +613,6 @@
         var links;
         var nodes;
         var i, j, k, e;
-        var tagName;
-        // var re;
 
         /*
          * special case for some website, pre-generic
@@ -714,17 +716,6 @@
             }
         }
 
-        /**
-         * return elements matching given class names.
-         */
-        var elementsMatchingClasses = function (doc, classNames) {
-            return classNames.map(function (className, _) {
-                return doc.getElementsByClassName(className);
-            }).reduce(function (lhs, rhs) {
-                return lhs.concat(rhs);
-            });
-        };
-
         // check for <a class="foo next"> <button class="foo next">
         // <input type="button" class="foo next">
         // accepts both next and nextControl class.
@@ -791,12 +782,12 @@
         let nextpageLink = getNextPageLink();
         if (nextpageLink) {
             if (debugGotoNextPage()) {
-		log("got nextpage link:\n" + utils.linkToString(nextpageLink));
-	    }
+                log("got nextpage link:\n" + utils.linkToString(nextpageLink));
+            }
             if (nextpageLink.hasAttribute("onclick")) {
                 if (debugGotoNextPage()) {
-		    log("will click the element");
-		}
+                    log("will click the element");
+                }
                 if (nextpageLink.click) {
                     // buttons has .click() function
                     nextpageLink.click();
@@ -811,8 +802,8 @@
                 }
             } else if (nextpageLink.hasAttribute("href")) {
                 if (debugGotoNextPage()) {
-		    log("will follow link.href if it's good");
-		}
+                    log("will follow link.href if it's good");
+                }
                 // FIX Issue 4: don't follow a link to index.html
                 if (nextpageLink.href.match(/index\....l?$/i)) {
                     return false;
@@ -826,8 +817,8 @@
             // content window. using html and css. use msg in
             // nextpage.strings.getString("msg_no_link_found")
             if (debugging()) {
-		log("No link/button found. will stay at current page.");
-	    }
+                log("No link/button found. will stay at current page.");
+            }
             return false;
         }
     };
@@ -897,26 +888,26 @@
      * run user command
      */
     let runUserCommand = function (command) {
-	switch (command) {
-	case "nextpage-maybe": return gotoNextPageMaybe();
-	case "nextpage": return gotoNextPage();
-	case "history-back": return historyBack();
+        switch (command) {
+        case "nextpage-maybe": return gotoNextPageMaybe();
+        case "nextpage": return gotoNextPage();
+        case "history-back": return historyBack();
         case "close-tab": return closeTab();
-	case "nil": break;	//do nothing.
-	default:
-	    if (debugging()) {
-		log('will not run unknown command: ' + command);
-	    };
-	    break;
-	};
-    }
+        case "nil": break;      //do nothing.
+        default:
+            if (debugging()) {
+                log('will not run unknown command: ' + command);
+            }
+            break;
+        }
+    };
 
     // read parsed user config if there is one.
     let store = browser.storage.sync;
     const STORAGE_KEY_PARSED_CONFIG = 'user-config-parsed';
     let getKey = store.get(STORAGE_KEY_PARSED_CONFIG);
     getKey.then((result) => {
-        parsedConfig = result[STORAGE_KEY_PARSED_CONFIG] || {};
+        let parsedConfig = result[STORAGE_KEY_PARSED_CONFIG] || {};
         if (parsedConfig.bindings) {
             // modify lexical variable, next time getBindings() should return
             // latest value.
@@ -944,8 +935,8 @@
         }
         let command = getBindings()[key];
         if (typeof(command) !== "undefined") {
-	    runUserCommand(command);
-	} else {
+            runUserCommand(command);
+        } else {
             if (debugging) {
                 log("no associated function with this key");
             }
@@ -954,19 +945,19 @@
 
     document.addEventListener("click", function (e) {
         var key = utils.describeMouseEventInEmacsNotation(e);
-	if (debugKeyEvents()) {
-	    log("mouseclick: " + key);
-	}
+        if (debugKeyEvents()) {
+            log("mouseclick: " + key);
+        }
         if (skipWebsite(e)) {
             return;
         }
         if (shouldIgnoreKey(key)) {
             return;
         }
-	let command = getBindings()[key];
-	if (typeof(command) !== "undefined") {
-	    runUserCommand(command);
-	};
+        let command = getBindings()[key];
+        if (typeof(command) !== "undefined") {
+            runUserCommand(command);
+        }
     });
 
 })();

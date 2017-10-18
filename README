@@ -27,6 +27,10 @@ any file in your extension's directory.
 You can also use web-ext to load temporary WebExtensions from the command line.
 https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Getting_started_with_web-ext
 this requires node LTS and npm.
+
+** how to build extension for distribution?
+just run make
+
 ** test pages
 debian install manual:
 http://www.debian.org/releases/stable/amd64/
@@ -39,6 +43,7 @@ boost library:
 http://www.boost.org/doc/libs/1_41_0/doc/html/array.html
 bing search result:
 https://www.bing.com/search?q=debian&qs=n&form=QBLH&sp=-1&pq=debian&sc=8-2&sk=&cvid=B56E4A93A3C4496DA0D9B031F698D9FA
+
 ** add-on distribution agreement
 Firefox Add-on Distribution Agreement - Mozilla | MDN
 https://developer.mozilla.org/en-US/Add-ons/AMO/Policy/Agreement
@@ -86,6 +91,9 @@ https://github.com/mdn/webextensions-examples/blob/master/notify-link-clicks-i18
   - 
 
 * done								      :entry:
+** 2017-10-19 run jslint on my js files
+make check
+
 ** 2017-10-19 implement I18N for options window and manifest file.
 
 - problems

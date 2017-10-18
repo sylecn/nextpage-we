@@ -1,3 +1,5 @@
-build:
+build: check
 	cd src && zip -r -FS ../nextpage.zip *
-.PHONY: build
+check:
+	./node_modules/.bin/eslint src/*.js
+.PHONY: build check
