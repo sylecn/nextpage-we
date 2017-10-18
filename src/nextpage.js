@@ -147,6 +147,18 @@
             "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul") {
             return true;
         }
+        let ignoreOnWebsites = variables.ignoreOnWebsites;
+        if (ignoreOnWebsites) {
+            const url = utils.getURL();
+            for (let i = 0; i < ignoreOnWebsites.length; ++i) {
+                if (url.match(ignoreOnWebsites[i])) {
+                    if (debugging()) {
+                        log("ignore on " + ignoreOnWebsites[i]);
+                    }
+                    return true;
+                }
+            }
+        }
         return false;
     };
 

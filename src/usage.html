@@ -37,6 +37,10 @@
 
       <dt>(unbind-all)</dt>
       <dd>Remove all previous bindings before this command, including built-in bindings.<br/>If you don't want to use any of the built-in key bindings, add this to the top of your user config file.</dd>
+
+      <dt>(ignore-on WEBSITE-REGEXP)</dt>
+      <dd>Do not run any nextpage commands when page URL matched WEBSITE-REGEXP.</dd>
+
     </dl>
 
     <h4>Built-in config</h4>
@@ -52,6 +56,9 @@
 (bind "M-p" 'history-back)
 (bind "M-n" 'nextpage)
 </pre>
+    <p>Some more user config examples:</p>
+    <pre>(ignore-on "https://.*\.example\.com/")
+    </pre>
 
     <h4>Bind Command: Keys</h4>
     <p>A subset of Emacs key names are used in bind. Here is a table to get you started.</p>

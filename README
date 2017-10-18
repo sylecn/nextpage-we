@@ -18,10 +18,12 @@ https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/storage/sync
 
 * todos								      :entry:
 ** 
-** 2017-10-18 config file help URL is down.
+** 2017-10-18 in add-on website, config file help URL is down.
 ** 2017-10-18 changelog for 2.0.0
 - [feature] support firefox 57+
 - [feature] user configuration is now synced by browser if you logged in.
+- [feature] add new user config command ignore-on, you can now disable
+  nextpage on some websites. fix issue #15.
 - This version is a rewrite in Web Extension API. There are two changes that
   may affect user experience.
   - User config file ~/.config/nextpage.lisp is obsolete. If you have created
@@ -29,11 +31,22 @@ https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/storage/sync
   - If some resource of a page loads very slow, nextpage hotkeys may not work
     on them.
   - Please report a bug if you have other issues in the new version.
--
-** 2017-10-18 disabled website 可以开放出来了。fix bug #15
-(ignore-on "http://read.qidian.com/")
-
+- 
 * done								      :entry:
+** 2017-10-18 disabled website 可以开放出来了。fix bug #15
+(ignore-on "https://www.qidian.com/")
+(ignore-on "https://.*\.qidian\.com/")
+
+both works. cool.
+
+- parse this command in options.js
+
+  how to do proper parsing? there may be escapes in the string.
+  just use regexp for now. don't care escapes.
+
+- use the parse result in nextpage.js
+- document it in usage.html
+
 ** 2017-10-18 add an options page. store user hotkeys somewhere.
 - make user config file backward compatible.
 - ~/projects/firefox/nextpage/src/chrome/content/config.jsm

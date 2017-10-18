@@ -141,6 +141,24 @@
 		// clear all bindings
 		bindings = {};
 		break;
+	    case "ignore-on":
+		// modifies variables['ignoreOnWebsites']
+		(function(){
+		    let ignoreOnPattern = /\(ignore-on\s+"(.*)"\s*\)/;
+		    let mo = ignoreOnPattern.exec(line);
+		    if (! mo) {
+			log('Error: ignore-on: not well formed: ' + line);
+			noerror = false;
+			return;
+		    }
+		    let website = mo[1];
+		    if (variables['ignoreOnWebsites']) {
+			variables['ignoreOnWebsites'].push(website);
+		    } else {
+			variables['ignoreOnWebsites'] = [website];
+		    }
+		})();
+		break;
 	    case "bind":
 		r = function () {
 		    var bind_pattern = /\(bind\s+"(.*)"\s+'?([^'\s]*)\s*\)/;
