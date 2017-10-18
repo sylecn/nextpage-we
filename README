@@ -1,5 +1,30 @@
 * COMMENT -*- mode: org -*-
 #+Date: 2017-02-24
-Time-stamp: <2017-02-24>
+Time-stamp: <2017-10-18>
 
 * Rewrite nextpage add-on using WebExtensions
+
+* notes								      :entry:
+** WebExtensions documents
+Browser Extensions - Mozilla | MDN
+https://developer.mozilla.org/en-US/Add-ons/WebExtensions
+
+* todos								      :entry:
+** 
+** 2017-10-18 make basic things work.
+2017-10-18 16:46:15 basic things work.
+test whether there are any js errors, then make a commit.
+
+- problems
+  - can I put my code in multiple files and compile them to one?
+    I want to use es2015 modules.
+
+    search: can I use es2015 modules in firefox web extension
+
+    search: compile es2015 modules to a single javascript file
+
+    I will keep it simple. just use old javascript.
+
+  - TODO search for content\. after migrating. content is not needed in WE.
+
+** 2017-10-18 add an options page. store user hotkeys somewhere.

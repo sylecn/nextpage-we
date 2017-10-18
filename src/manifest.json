@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "nextpage",
-    "version": "1.6.0",
+    "version": "2.0.0",
     "description": "use SPC key to goto next page when at the bottom of a page.",
     "icons": {
 	"48": "icons/extensionGeneric.svg"
@@ -15,8 +15,6 @@
     "applications": {
 	"gecko": {
 	    "id": "nextpage@yuanle.song",
-	    "strict_min_version": "42.0",
-	    "strict_max_version": "54.*",
 	    "update_url": "https://nextpage.emacsos.com/updates.json"
 	}
     }

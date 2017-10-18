@@ -1,6 +1,915 @@
-document.addEventListener("keypress", function (e) {
-    console.log("keypress: " + e.charCode + ", " + e.keyCode);
-    if (e.charCode === 110) {
-	document.location.href = "https://www.emacsos.com/baidu.html"
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Yuanle
+// Song <sylecn@gmail.com>
+//
+// The JavaScript code in this page is free software: you can
+// redistribute it and/or modify it under the terms of the GNU
+// General Public License (GNU GPL) as published by the Free Software
+// Foundation, either version 3 of the License, or (at your option)
+// any later version.  The code is distributed WITHOUT ANY WARRANTY;
+// without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+// As additional permission under GNU GPL version 3 section 7, you
+// may distribute non-source (e.g., minimized or compacted) forms of
+// that code without the copy of the GNU GPL normally required by
+// section 4, provided you include this license notice and a URL
+// through which recipients can access the Corresponding Source.
+
+(function () {
+    let debugging = function () {return true;};
+    let debugKeyEvents = function () {return true;};
+    let debugGotoNextPage = function () {return false;};
+    let debugSpecialCase = function () {return false;};
+    let debugATag = function () {return false;};
+    let debugDomainCheck = function () {return false;};
+    let debugContentEditable = function () {return false;};
+    let debugIFrame = function () {return false;};
+    let log = console.log;
+
+    /**
+     * return true if user is typing, e.g. when active element is input/ta
+     * etc.
+     */
+    let userIsTyping = function () {
+        var focusElement = document.activeElement;
+        // walk down the frames to get the bottom level activeElement
+        while (focusElement.tagName.match(/^FRAME$/i)) {
+            focusElement = focusElement.contentDocument.activeElement;
+        }
+        if (focusElement.tagName.match(/^(INPUT|TEXTAREA|SELECT)$/i)) {
+            return true;
+        }
+        if (debugContentEditable()) {
+            log(focusElement.tagName +
+                "\nfocusElement.contentEditable=" +
+                focusElement.contentEditable);
+        }
+        // when contentEditable is set to true, a BODY tag or DIV tag will
+        // become editable, so treat them just like other input controls.
+        if (focusElement.contentEditable === "true") {
+            return true;
+        }
+        // IFRAME is a also an input control when inner document.designMode is
+        // set to "on". Some blog/webmail rich editor use IFRAME instead of
+        // TEXTAREA.
+        if (debugIFrame()) {
+            if (focusElement.tagName === "IFRAME") {
+                log(focusElement.tagName +
+                    "\nfocusElement.contentEditable=" +
+                    focusElement.contentEditable +
+                    "\ndocument.designMode=" +
+                    focusElement.contentDocument.designMode +
+                    "\nbody.contentEditable=" +
+                    focusElement.contentDocument.body.contentEditable);
+            }
+        }
+        // Note: some website is using IFRAME for textarea, but designMode is
+        // not set to "on", including: gmail, qq mail. I don't know how they
+        // make that work.
+        if (focusElement.tagName === "IFRAME" &&
+            (focusElement.contentDocument.designMode.toLowerCase() === "on" ||
+             focusElement.contentDocument.body.contentEditable)) {
+            return true;
+        }
+
+        return false;
+    };
+
+    /**
+     * Some websites use the same hotkeys as nextpage. To prevent nextpage
+     * from capturing the hotkeys, add the website and key binding they
+     * use in this alist.
+     *
+     * the key of the alist is a regexp that matches to document URL.
+     * the value of the alist is a list of keys to ignore.
+     *
+     * the key of the alist can be a literal string as well, which will be
+     * converted to regexp by calling new RegExp(str).
+     *
+     * nextpage will stop when it finds the first match, so you should put
+     * more specific regexp earlier in the list.
+     */
+    // TODO make this list configurable.
+    let ignoreBindingAList = [
+        [/https?:\/\/www\.google\.com\/reader\/view/i, ['SPC', '1', '2']],
+        [/https?:\/\/www\.google\.com\/transliterate/i, "*"],
+        [/http:\/\/typing.sjz.io\//i, "*"],
+        // exception rule, pipermail mailing list is not webmail.
+        [/mail\..*\/pipermail/i, ""],
+        // ignore common webmail hosts, nextpage bindings can do little on
+        // these domains.
+        [/\W(web)?mail\.[^.]+\.(com|org|net|edu)/i, "*"]
+    ];
+
+    /**
+     * return true if this key should be ignored on current website.
+     * return false otherwise.
+     */
+    let shouldIgnoreKey = function (key) {
+        const url = utils.getURL();
+        let it = Iterator(ignoreBindingAList);
+        let v;
+        for (let pair in it) {
+            // ignore the index, get the value in pair.
+            v = pair[1];
+            if (url.match(v[0])) {
+                if (v[1] === "") {
+                    // user explicitly says do not ingore any key
+                    return false;
+                }
+                if (v[1] === "*" || utils.inArray(key, v[1])) {
+                    if (debugging()) {
+                        log("ignore " + key + " for " + v[0]);
+                    }
+                    return true;
+                }
+                return false;
+            }
+        }
+        return false;
+    };
+
+    /**
+     * return true if nextpage should ignore keypress events for this website.
+     * some website has special key handing. some websites just don't need
+     * nextpage.
+     */
+    let skipWebsite = function (e) {
+        // ignore keyevents in XUL, only catch keyevents in content.
+        if (e.target["namespaceURI"] ===
+            "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul") {
+            return true;
+        }
+        return false;
+    };
+
+    let utils = {
+        /**
+         * test whether an element is in an array
+         * @return true if it is.
+         * @return false otherwise.
+         */
+        inArray: function (element, array) {
+            var i;
+            for (i = 0; i < array.length; i++) {
+                if (element === array[i]) {
+                    return true;
+                }
+            }
+            return false;
+        },
+
+        /**
+         * integer to ASCII
+         */
+        itoa: function (i) {
+            return String.fromCharCode(i);
+        },
+
+        /**
+         * ASCII to integer
+         */
+        atoi: function (a) {
+            return a.charCodeAt();
+        },
+
+        /**
+         * describe mouse click in emacs notation. return a string.
+         * examples: <mouse-1>, <mouse-5>, <C-mouse-1>, <M-mouse2>
+         */
+        describeMouseEventInEmacsNotation: function (e) {
+            var button = "mouse-" + (e.button + 1);
+            var ctrl = e.ctrlKey ? "C-": "";
+            var meta = (e.altKey || e.metaKey) ? "M-": "";
+            var shift = e.shiftKey ? "S-": "";
+            var re = '<' + ctrl + meta + shift + button + '>';
+            return re;
+        },
+
+        /**
+         * describe key pressed in emacs notation. return a string.
+         * examples: n, N, C-a, M-n, SPC, DEL, <f2>, <insert>, C-M-n
+         * <C-backspace>, <C-S-f7>, C-M-*, M-S-RET, <backspace>, <C-M-S-return>
+         * @param e a KeyEvent
+         * @return a string that describes which key was pressed.
+         */
+        describeKeyInEmacsNotation: function (e) {
+            // /**/if (debugging()) {
+            //     log("keyCode charCode:" + e.keyCode + " " + e.charCode);
+            // }
+            var getNameForKeyCode = function (keyCode) {
+                switch (keyCode) {
+                case KeyEvent.DOM_VK_INSERT : return "insert";
+                case KeyEvent.DOM_VK_DELETE : return "delete";
+                case KeyEvent.DOM_VK_HOME : return "home";
+                case KeyEvent.DOM_VK_END : return "end";
+                case KeyEvent.DOM_VK_PAGE_UP : return "prior";
+                case KeyEvent.DOM_VK_PAGE_DOWN : return "next";
+
+                case KeyEvent.DOM_VK_BACK_SPACE : return "backspace";
+                case KeyEvent.DOM_VK_ESCAPE: return "escape";
+
+                case KeyEvent.DOM_VK_F1 : return "f1";
+                case KeyEvent.DOM_VK_F2 : return "f2";
+                case KeyEvent.DOM_VK_F3 : return "f3";
+                case KeyEvent.DOM_VK_F4 : return "f4";
+                case KeyEvent.DOM_VK_F5 : return "f5";
+                case KeyEvent.DOM_VK_F6 : return "f6";
+                case KeyEvent.DOM_VK_F7 : return "f7";
+                case KeyEvent.DOM_VK_F8 : return "f8";
+                case KeyEvent.DOM_VK_F9 : return "f9";
+                case KeyEvent.DOM_VK_F10 : return "f10";
+                case KeyEvent.DOM_VK_F11 : return "f11";
+                case KeyEvent.DOM_VK_F12 : return "f12";
+
+                case KeyEvent.DOM_VK_LEFT : return "left";
+                case KeyEvent.DOM_VK_UP : return "up";
+                case KeyEvent.DOM_VK_RIGHT : return "right";
+                case KeyEvent.DOM_VK_DOWN : return "down";
+
+                case KeyEvent.DOM_VK_RETURN : return "RET";
+
+                default: return "KEYCODE" + keyCode;
+                }
+            };
+            var keyIsChar = (e.charCode != 0);
+            var keyname = keyIsChar ? this.itoa(e.charCode) :
+                getNameForKeyCode(e.keyCode);
+            if (keyname === " ") keyname = "SPC";  //SPC is emacs syntax and it's
+            //more readable.
+            // /**/if (debugging()) {
+            //     log("keyname:" + keyname);
+            // }
+            var ctrl = e.ctrlKey ? "C-": "";
+            var meta = (e.altKey || e.metaKey) ? "M-": "";
+            var shift = e.shiftKey ? "S-": "";
+            var re = keyIsChar ? ctrl + meta + keyname :
+                '<' + ctrl + meta + shift + keyname + '>';
+            return re;
+        },
+
+        /**
+         * @return current page's URL as a string.
+         */
+        getURL: function (win) {
+            if (! win) {
+                win = window;
+            }
+            return win.location.toString();
+        },
+
+        /**
+         * @return <meta> tag with given name. in jQuery syntax:
+         * $("meta[name=$name]").attr("content")
+         * @return false if the name is not found.
+         */
+        getMeta: function (name, doc) {
+            var i;
+            if (! doc) {
+                doc = window.document;
+            }
+            var metas = doc.getElementsByTagName("meta");
+            for (i = 0; i < metas.length; ++i) {
+                if (metas[i].getAttribute("name") === name) {
+                    return metas[i].getAttribute("content");
+                }
+            }
+            return false;
+        },
+
+        // convert anchor (link) object to string
+        linkToString: function (l) {
+	    let re, prop;
+	    re = "link = {\n";
+	    prop = ["rel", "accessKey", "title", "href", "onclick",
+		    "innerHTML", "id", "name"];
+	    for (let i = 0; i < prop.length; i++) {
+	        if (l.hasAttribute(prop[i])) {
+		    re += prop[i] + ": " + l.getAttribute(prop[i]) + ",\n";
+	        }
+	    }
+	    return re + "}";
+        }
+    };
+
+    // ================================
+    //  special cases for some website
+    // ================================
+
+    /*
+     * hook functions for special cases defined in getNextPageLink's
+     * preGeneric and postGeneric.
+     *
+     * all hook functions are called with two arguments: url and doc.
+     * hook function should return false if no link is found, otherwise,
+     * it should return the link object.
+     */
+
+    let getLinkForDiscuz = function (url, doc) {
+        var generator;
+        var className;
+        if (window.discuzVersion == "X2") {
+            className = "nxt";
+        } else {
+            generator = utils.getMeta("generator");
+            if (! generator) {
+                return false;
+            };
+            if (generator.match(/^Discuz! X/)) {
+                className = "nxt";
+            } else if (generator.match(/^Discuz! /)) {
+                className = "next";
+            } else {
+                return false;
+            }
+        }
+        var nodes = doc.getElementsByClassName(className);
+        if (nodes.length < 1) {
+            return false;
+        }
+        return nodes[0];
+    };
+
+    let getLinkForOsdirML = function (url, doc) {
+        // last <a> in div.osDirPrevNext. I wish I have jQuery at my disposal.
+        // $("div.osDirPrevNext > a:last")
+        var nodes = doc.getElementsByClassName("osDirPrevNext");  // FF3 only.
+        if (nodes.length < 1) {
+            return false;
+        }
+        var links = nodes[0].getElementsByTagName("a");
+        var link = links[links.length - 1];
+        // /**/log('innerHTML' + link.innerHTML);
+        if (link.innerHTML === "&gt;&gt;") {
+            return link;
+        }
+        return false;
+    };
+
+    let getLinkForDerkeilerML = function (url, doc) {
+        // when there is a ul.links element, locate it first. then find li
+        // node that contains "Next (in|by) thread:", then search in this node
+        // for a link. see bug #139, #208.
+        var nodes = doc.getElementsByClassName("links");
+        var links;
+        if (nodes.length > 0) {
+            nodes = nodes[0].getElementsByTagName("li");
+        } else {
+            nodes = doc.getElementsByTagName("li");
+        }
+        for (i = 0; i < nodes.length; ++i) {
+            if (nodes[i].innerHTML.match(/Next (in|by) thread:/)) {
+                links = nodes[i].getElementsByTagName("a");
+                if (links.length > 0) {
+                    return links[0];
+                }
+            }
+        }
+        return false;
+    };
+
+    let getLinkForWikiSource = function (url, doc) {
+        var nodes = doc.getElementsByTagName("td");
+        var links;
+        for (i = 0; i < nodes.length; ++i) {
+            if (nodes[i].innerHTML.match(/→/)) {
+                links = nodes[i].getElementsByTagName("a");
+                if (links.length > 0) {
+                    return links[0];
+                }
+            }
+        }
+        return false;
+    };
+
+    let getLinkForOpenstackDoc = function (url, doc) {
+        var inode = doc.getElementsByClassName("fa-angle-double-right");
+        if (inode.length < 1) {
+            return false;
+        }
+        return inode[0].parentElement;
+    };
+
+    let getLinkForBaiduSearch = function (url, doc) {
+        // locate A tag with class="n"
+        var nodes = doc.getElementsByClassName("n");
+        if (nodes.length < 1) {
+            return false;
+        }
+        for (i = 0; i < nodes.length; ++i) {
+            if (nodes[i].innerHTML === "下一页&gt;") {
+                return nodes[i];
+            }
+        }
+        return false;
+    };
+
+    /**
+     * @return true if given string matches one of the words that's
+     * equivalent to 'next'.
+     * @return false otherwise.
+     */
+    let matchesNext = function (str) {
+        // str could be null
+        if (! str) return false;
+        str = str.trim();
+        // str could be space only
+        if (! str) return false;
+
+        // to add more languages, load
+        // /home/sylecn/projects/firefox/nextpage/make-regexp.el
+        // M-x insert-nextpage-regexp
+
+        // TODO make this regexp configurable
+        var nextPattern = /(?:(^|>)(next page|Nächste Seite|la page suivante|следующей страницы)(<|$)|(^|>\s*)(next|nächste|Suivant|Следующая)(\s*<|$| ?(?:→|▸|»|›|&gt;)|1?\.(?:gif|jpg|png))|^(→|›|»|››| ?(&gt;)+ ?)$|(下|后)一?(?:页|糗事|章|回|頁|张)|^(Next Chapter|Thread Next|Go to next page))/i;
+        return nextPattern.test(str) || nextPattern.test(str.slice(1, -1));
+    };
+
+    /**
+     * @param l an anchor object
+     * @return true if this element is visible
+     * @return false otherwise
+     */
+    let isVisible = function (l) {
+        return l.offsetParent !== null;
+    };
+
+    /**
+     * @param url a url string
+     * @return true if the url pass the domain check.
+     * This means the url matches the document domain, or it's a file:// or
+     * javascript: url.
+     * @return false otherwise. thus the url failed the domain check.
+     */
+    let checkDomain = function (url) {
+        if (debugDomainCheck()) {
+            log("checkDomain " + url);
+        }
+
+        if (url.match(/^javascript:/i)) {
+            return true;
+        }
+
+        var domainPattern = /^([^:]+):\/\/\/?([^:\/]+)/;
+        var matchResult = domainPattern.exec(url);
+
+        if (! matchResult) {
+            // should be a relative link.
+            return true;
+        }
+        if (matchResult[1] === "file") {
+            return true;
+        }
+        if (matchResult[2].indexOf(document.domain) !== -1) {
+            return true;
+        }
+        if (debugDomainCheck()) {
+            log("domain compare: link at " + matchResult[2] +
+                ", this doc at " + document.domain);
+            log("domain check failed.");
+        }
+        return false;
+    };
+
+    /**
+     * @param l an anchor object
+     * @return true if this anchor is link to next page
+     * @return false otherwise
+     */
+    let isNextPageLink = function (l) {
+        var imgMaybe;
+        var spanMaybe;
+
+        /**
+         * if debugATag is enabled, log message; otherwise, do nothing.
+         */
+        var debugLog = function (msg) {
+            if (debugATag()) {
+                log(msg);
+            }
+        };
+
+        // check rel
+        if (l.hasAttribute("rel")) {
+            if (matchesNext(l.getAttribute("rel"))) {
+                // if rel is used, it's usually the right link. GNU info
+                // html doc is using rel to represent the relation of the
+                // nodes.
+                return true;
+            }
+        }
+
+        // check accesskey
+        if (l.getAttribute("accesskey") === 'n') {
+            // some well written html already use accesskey n to go to
+            // next page, in firefox you could just use Alt-Shift-n.
+            return true;
+        }
+
+        // invisible <a> tag is usually not the right link to nextpage.
+        if (! isVisible(l)) {
+            debugLog("link ignored because it's invisible: " + l.outerHTML);
+            return false;
+        }
+
+        if (l.hasAttribute("title")) {
+            if (matchesNext(l.getAttribute("title"))) {
+                return true;
+            }
+        }
+
+        // if we come here, it's not that clear we get a next page link, so more
+        // restrict rules apply.
+
+        // check domain
+        if (l.hasAttribute("href")) {
+            if (! checkDomain(l.getAttribute("href"))) {
+                debugLog("link ignored because domain check failed: " + l.outerHTML)
+                return false;
+            }
+        }
+
+        // check innerHTML
+        if (matchesNext(l.innerHTML)) {
+            return true;
+        }
+
+        // check inner <img> tag
+        imgMaybe = l.getElementsByTagName("img");
+        if (imgMaybe.length !== 0) {
+            if (matchesNext(imgMaybe[0].getAttribute('alt')) ||
+                matchesNext(imgMaybe[0].getAttribute('name')) ||
+                matchesNext(imgMaybe[0].getAttribute('src'))) {
+                return true;
+            }
+        }
+        // check inner <span> tag
+        spanMaybe = l.getElementsByTagName("span");
+        if (spanMaybe.length !== 0) {
+            if (matchesNext(spanMaybe[0].innerHTML))
+                return true;
+        }
+
+        debugLog("link ignored because no signs of nextpage found: " + l.outerHTML)
+        return false;
+    };
+
+    /**
+     * @param l an INPUT type="button" object
+     * @return true if this button is link to next page
+     * @return false otherwise
+     */
+    let isNextPageButton = function (l) {
+        // check value
+        if (matchesNext(l.getAttribute("value"))) {
+            return true;
+        }
+
+        // check title
+        if (l.hasAttribute("title")) {
+            if (matchesNext(l.getAttribute("title"))) {
+                return true;
+            }
+        }
+
+        // check accesskey
+        if (l.getAttribute("accesskey") === 'n') {
+            // some well written html already use accesskey n to go to
+            // next page, in firefox you could just use Alt-Shift-n.
+            return true;
+        }
+
+        return false;
+    };
+
+    /**
+     * return the next page DOM element if there is a next page link or button.
+     * otherwise, return null.
+     */
+    let getNextPageLink = function () {
+        var links;
+        var nodes;
+        var i, j, k, e;
+        var tagName;
+        // var re;
+
+        /*
+         * special case for some website, pre-generic
+         */
+        var preGeneric = [
+            [/\/((thread|forum)-|(viewthread|forumdisplay)\.php)/i, getLinkForDiscuz],
+            [/^http:\/\/osdir\.com\/ml\//i, getLinkForOsdirML],
+            [/^http:\/\/coding\.derkeiler\.com\/Archive\//i, getLinkForDerkeilerML],
+            [/\.wikisource\.org\//i, getLinkForWikiSource],
+            [/^https?:\/\/docs\.openstack\.org\//i, getLinkForOpenstackDoc],
+            [/^http:\/\/www\.baidu\.com\/s\?wd=/i, getLinkForBaiduSearch]
+        ];
+        var url = utils.getURL();
+        for (i = 0; i < preGeneric.length; ++i) {
+            if (url.match(preGeneric[i][0])) {
+                var re = preGeneric[i][1](url, document);
+                if (debugSpecialCase()) {
+                    log("special case for " + preGeneric[i][0]);
+                    log("hook function returned " + re);
+                }
+                if (re) {
+                    return re;
+                }
+            }
+        }
+
+        /*
+          note: on some generated document (such as this one:
+          http://www.netlib.org/lapack/lug/node5.html), there are two LINK tag with
+          rel "next". I don't know what that means. it's probably a broken page.
+          As a result, LINK tag support is removed for now.
+        */
+        // var tagNameToCheck = ["LINK", "A"];
+
+        // check last none-text node in <head>
+        var head = document.getElementsByTagName('head');
+        if (head) {
+            var lastElement = head[0].lastElementChild;
+            if (lastElement &&
+                (lastElement.tagName.toUpperCase() === "LINK") &&
+                lastElement.hasAttribute('rel') &&
+                (lastElement.getAttribute('rel').toLowerCase() === "next")) {
+                // find a next page link
+                if (debugging()) {
+                    log("found <LINK rel=\"next\"> href=" + lastElement.href);
+                }
+                return lastElement;
+            }
+        }
+
+        /**
+         * given a page url, return page number as a number if it is
+         * found. return null if page can't be found in given URL or its value
+         * is not a number.
+         *
+         * supported URL format:
+         *     ?page=N (query string)
+         */
+        var parsePageFromURL = function (pageURL) {
+            var pagePattern = /[?&]page=([^&]+)/;
+            var mo = pagePattern.exec(pageURL);
+            var result;
+            if (mo) {
+                result = parseInt(mo[1]);
+                if (isNaN(result)) {
+                    return null;
+                } else {
+                    return result;
+                }
+            } else {
+                return null;
+            }
+        };
+
+        // check <a> links
+        var tagNameToCheck = ["a"];
+        var pageURL = document.location.href;
+        var currentPage = parsePageFromURL(pageURL);
+        for (i = 0; i < tagNameToCheck.length; i++) {
+            links = document.getElementsByTagName(tagNameToCheck[i]);
+            for (j = 0; j < links.length; j++) {
+                if (currentPage) {
+                    if (parsePageFromURL(links[j].href) === currentPage + 1) {
+                        return links[j];
+                    }
+                }
+                if (isNextPageLink(links[j])) {
+                    return links[j];
+                }
+                if (debugATag()) {
+                    log("not nextpage link: " + links[j].outerHTML);
+                }
+            }
+        }
+
+        // check <input type="button" ...>
+        nodes = document.getElementsByTagName('input');
+        for (j = 0; j < nodes.length; j++) {
+            if (isNextPageButton(nodes[j])) {
+                return nodes[j];
+            }
+        }
+
+        /**
+         * return elements matching given class names.
+         */
+        var elementsMatchingClasses = function (doc, classNames) {
+            return classNames.map(function (className, _) {
+                return doc.getElementsByClassName(className);
+            }).reduce(function (lhs, rhs) {
+                return lhs.concat(rhs);
+            });
+        };
+
+        // check for <a class="foo next"> <button class="foo next">
+        // <input type="button" class="foo next">
+        // accepts both next and nextControl class.
+        var getNextElementByClassName = function (className) {
+            var tagName;
+            var nodes;
+            nodes = document.getElementsByClassName(className);
+            for (j = 0; j < nodes.length; j++) {
+                tagName = nodes[j].tagName.toUpperCase();
+                if (tagName === "A" ||
+                    tagName === "BUTTON" ||
+                    (tagName === "INPUT" &&
+                     nodes[j].getAttribute("type") === "button")) {
+                    if (debugging()) {
+                        log("found <" + tagName + " class=\"foo " +
+                            className + "\">");
+                    }
+                    return nodes[j];
+                } else if (tagName === "LI") {
+                    if (nodes[j].firstElementChild.tagName === "A") {
+                        return nodes[j].firstElementChild;
+                    }
+                }
+            }
+            return null;
+        };
+        var nextClasses = ['next', 'nextControl', 'pageNext'];
+        for (k = 0; k < nextClasses.length; k++) {
+            e = getNextElementByClassName(nextClasses[k]);
+            if (e) {
+                return e;
+            }
+        }
+
+        /*
+         * special case for some website, post-generic
+         */
+
+        // // for acl2 tour
+        // if ($('a[href="acl2-doc-info.html"] > img[src="index.gif"]',
+        //        document).get(0)) {
+        //      re = $('a > img[src$=".gif"]', document).filter(
+        //          function (index) {
+        //              return ((this.src === "walking.gif") ||
+        //                      (this.src === "flying.gif"))
+        //          }
+        //      ).get(0);
+        //      if (re) {
+        //          return re;
+        //      }
+        // }
+
+        return false;
+    };
+
+    /**
+     * if there is a next page, goto next page. otherwise, print an info on
+     * console.
+     */
+    let gotoNextPage = function () {
+        if (debugGotoNextPage()) {
+            log("in gotoNextPage()");
+        }
+        let nextpageLink = getNextPageLink();
+        if (nextpageLink) {
+            if (debugGotoNextPage()) {
+		log("got nextpage link:\n" + utils.linkToString(nextpageLink));
+	    }
+            if (nextpageLink.hasAttribute("onclick")) {
+                if (debugGotoNextPage()) {
+		    log("will click the element");
+		}
+                if (nextpageLink.click) {
+                    // buttons has .click() function
+                    nextpageLink.click();
+                } else {
+                    // <a> link doesn't have a .click() function
+                    var clickEvent = document.createEvent("MouseEvents");
+                    clickEvent.initMouseEvent("click", true, true, window,
+                                              0, 0, 0, 0, 0,
+                                              false, false, false, false, 0,
+                                              null);
+                    nextpageLink.dispatchEvent(clickEvent);
+                }
+            } else if (nextpageLink.hasAttribute("href")) {
+                if (debugGotoNextPage()) {
+		    log("will follow link.href if it's good");
+		}
+                // FIX Issue 4: don't follow a link to index.html
+                if (nextpageLink.href.match(/index\....l?$/i)) {
+                    return false;
+                }
+                nextpageLink.click();
+            }
+            // if there is a chance to return anything.
+            return true;
+        } else {
+            // TODO show a nice auto timeout message at the bottom of the
+            // content window. using html and css. use msg in
+            // nextpage.strings.getString("msg_no_link_found")
+            if (debugging()) {
+		log("No link/button found. will stay at current page.");
+	    }
+            return false;
+        }
+    };
+
+    /**
+     * @return true if we are at bottom of a page.
+     * @return false otherwise.
+     */
+    let isAtBottom = function () {
+        // this bad site doesn't have a correct html markup, firefox can't
+        // return the right document height, so I want SPC to just scroll
+        // up.
+        var hasBadMarkupDomainList = ["msdn.microsoft.com",
+                                      "bbs.sgamer.com"];
+        if (utils.inArray(document.domain, hasBadMarkupDomainList)) {
+            return false;
+        }
+
+        if (window.scrollMaxY <= window.scrollY) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
+    /**
+     * if document view is at bottom of the page, and there is a next page,
+     * goto next page.
+     */
+    let gotoNextPageMaybe = function () {
+        if (isAtBottom()) {
+            // go to next page
+            return gotoNextPage();
+        }
+        return false;
+    };
+
+    /**
+     * go back in history
+     */
+    let historyBack = function () {
+        window.history.back();
+    };
+
+    /**
+     * user's key bindings.
+     * TODO make this configurable.
+     */
+    let getBindings = function () {
+        return {
+            "n": "nextpage",
+            "p": "history-back",
+            "SPC": "nextpage-maybe"
+        }
+    };
+
+    /**
+     * run user command
+     */
+    let runUserCommand = function (command) {
+	switch (command) {
+	case "nextpage-maybe": return gotoNextPageMaybe();
+	case "nextpage": return gotoNextPage();
+	case "history-back": return historyBack();
+	case "nil": break;	//do nothing.
+	default:
+	    if (debugging()) {
+		log('will not run unknown command: ' + command);
+	    };
+	    break;
+	};
     }
-});
+
+    document.addEventListener("keypress", function (e) {
+        let key = utils.describeKeyInEmacsNotation(e);
+        if (debugKeyEvents) {
+            log("keypress in emacs notation: " + key);
+        }
+        if (userIsTyping()) {
+            return;
+        }
+        if (skipWebsite(e)) {
+            return;
+        }
+        if (shouldIgnoreKey(key)) {
+            return;
+        }
+        let command = getBindings()[key];
+        if (typeof(command) !== "undefined") {
+	    runUserCommand(command);
+	} else {
+            if (debugging) {
+                log("no associated function with this key");
+            }
+        }
+    });
+})();
+
+// Local Variables:
+// indent-tabs-mode: nil
+// End:
