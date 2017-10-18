@@ -256,6 +256,15 @@
 	showUserConfig();
 	document.getElementById('save-and-reload').addEventListener('click', saveAndReload);
 	document.getElementById('help').addEventListener('click', help);
+
+	// I18N
+	document.getElementById("title").innerHTML = browser.i18n.getMessage("nextPageAddOnOptions");
+	document.getElementById("built-in-config-label").innerHTML = browser.i18n.getMessage("builtInConfig");
+	document.getElementById("user-config-label").innerHTML = browser.i18n.getMessage("userConfig");
+	document.getElementById("save-and-reload").innerHTML = browser.i18n.getMessage("save");
+	document.getElementById("help").innerHTML = browser.i18n.getMessage("help");
+	document.getElementById("report-a-bug-intro").innerHTML = browser.i18n.getMessage("reportBugIntro");
+	document.getElementById("report-a-bug").innerHTML = browser.i18n.getMessage("reportBug");
     };
 
     initUI();

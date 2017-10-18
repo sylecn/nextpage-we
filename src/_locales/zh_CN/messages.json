@@ -1,0 +1,38 @@
+{
+    "addonName": {
+	"message": "下一页",
+	"description": "add-on name"
+    },
+    "addonDescription": {
+	"message": "在页尾处，空格键自动翻到下一页",
+	"description": "add-on description"
+    },
+    "nextPageAddOnOptions": {
+	"message": "下一页扩展配置",
+	"description": "add-on options title"
+    },
+    "builtInConfig": {
+	"message": "内置配置：",
+	"description": "built-in config label"
+    },
+    "userConfig": {
+	"message": "用户配置：",
+	"description": "user config label"
+    },
+    "save": {
+	"message": "保存",
+	"description": "save button label"
+    },
+    "help": {
+	"message": "帮助",
+	"description": "help button label"
+    },
+    "reportBugIntro": {
+	"message": "如果您发现软件错误并希望该错误被修复, 请",
+	"description": "report a bug intro"
+    },
+    "reportBug": {
+	"message": "提交错误报告",
+	"description": "report a bug"
+    }
+}

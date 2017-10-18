@@ -1,0 +1,38 @@
+{
+    "addonName": {
+	"message": "nextpage",
+	"description": "add-on name"
+    },
+    "addonDescription": {
+	"message": "use SPC key to goto next page when at the bottom of a page.",
+	"description": "add-on description"
+    },
+    "nextPageAddOnOptions": {
+	"message": "Nextpage Add-on Options",
+	"description": "add-on options title"
+    },
+    "builtInConfig": {
+	"message": "Built-in Config:",
+	"description": "built-in config label"
+    },
+    "userConfig": {
+	"message": "User Config:",
+	"description": "user config label"
+    },
+    "save": {
+	"message": "Save",
+	"description": "save button label"
+    },
+    "help": {
+	"message": "Help",
+	"description": "help button label"
+    },
+    "reportBugIntro": {
+	"message": "If you found a problem and would like to get it fixed, please",
+	"description": "report a bug intro"
+    },
+    "reportBug": {
+	"message": "Report a bug",
+	"description": "report a bug"
+    }
+}

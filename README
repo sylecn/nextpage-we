@@ -1,6 +1,6 @@
 * COMMENT -*- mode: org -*-
 #+Date: 2017-02-24
-Time-stamp: <2017-10-18>
+Time-stamp: <2017-10-19>
 
 * Rewrite nextpage add-on using WebExtensions
 
@@ -15,24 +15,112 @@ Options page - Mozilla | MDN
 https://developer.mozilla.org/en-US/Add-ons/WebExtensions/user_interface/Options_pages
 storage.sync - Mozilla | MDN
 https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/storage/sync
+Publishing your extension - Mozilla | MDN
+https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Publishing_your_WebExtension
+Internationalization - Mozilla | MDN
+https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Internationalization
+
+** how to test web extension on localhost?
+Open "about:debugging" in Firefox, click "Load Temporary Add-on" and select
+any file in your extension's directory.
+
+You can also use web-ext to load temporary WebExtensions from the command line.
+https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Getting_started_with_web-ext
+this requires node LTS and npm.
+** test pages
+debian install manual:
+http://www.debian.org/releases/stable/amd64/
+emacs manual:
+http://www.gnu.org/software/emacs/manual/html_node/emacs/Commands.html#Commands
+fedora doc:
+https://docs-old.fedoraproject.org/en-US/Fedora/26/html/Installation_Guide/index.html
+https://docs-old.fedoraproject.org/en-US/Fedora/26/html/System_Administrators_Guide/index.html
+boost library:
+http://www.boost.org/doc/libs/1_41_0/doc/html/array.html
+bing search result:
+https://www.bing.com/search?q=debian&qs=n&form=QBLH&sp=-1&pq=debian&sc=8-2&sk=&cvid=B56E4A93A3C4496DA0D9B031F698D9FA
+** add-on distribution agreement
+Firefox Add-on Distribution Agreement - Mozilla | MDN
+https://developer.mozilla.org/en-US/Add-ons/AMO/Policy/Agreement
+Add-on Policies - Mozilla | MDN
+https://developer.mozilla.org/en-US/Add-ons/AMO/Policy/Reviews
 
 * todos								      :entry:
 ** 
+** 2017-10-19 zh_CN's messages.json is not read by firefox.
+not sure why.
+** 2017-10-19 send notification when next page link is not found.
+see example here:
+webextensions-examples/background-script.js at master · mdn/webextensions-examples
+https://github.com/mdn/webextensions-examples/blob/master/notify-link-clicks-i18n/background-script.js
+
 ** 2017-10-18 in add-on website, config file help URL is down.
-** 2017-10-18 changelog for 2.0.0
+** 2017-10-18 changelog for first 2.x release
 - [feature] support firefox 57+
 - [feature] user configuration is now synced by browser if you logged in.
 - [feature] add new user config command ignore-on, you can now disable
   nextpage on some websites. fix issue #15.
-- This version is a rewrite in Web Extension API. There are two changes that
-  may affect user experience.
+- [notice] This version is a rewrite in Web Extension API. There are two
+  changes that may affect user experience.
   - User config file ~/.config/nextpage.lisp is obsolete. If you have created
     user config file, please copy & paste the text to the new options window.
   - If some resource of a page loads very slow, nextpage hotkeys may not work
     on them.
   - Please report a bug if you have other issues in the new version.
 - 
+- problems
+  - how to release the new add-on. it's no longer an xpi.
+    https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Publishing_your_WebExtension
+    just zip it.
+
+  - DONE what is update_url? I don't have it yet.
+    https://developer.mozilla.org/en-US/Add-ons/WebExtensions/manifest.json/applications
+    try remove it.
+  - warns about it's one-way upgrade. you can not go back to xpi.
+
+    TODO I need to check my js files for errors and unused code.
+    maybe rename some variables with underscore in them.
+
+    TODO localization is not added yet. Chinese users will lose UI.
+
+  - 
+
 * done								      :entry:
+** 2017-10-19 implement I18N for options window and manifest file.
+
+- problems
+  - do I need to use javascript to rewrite HTML tags in options.html?
+    that will be boring.
+
+    search: firefox web extension option page I18N
+
+    title and labels shows nothing.
+    add-on name is also not reflected on UI.
+
+    try restart firefox
+
+  - There was an error during installation: Extension is invalid
+
+    search: firefox There was an error during installation: Extension is invalid
+
+    works when I add messages.json for zh_CN. maybe it doesn't like empty
+    locale dirs.
+
+    now i18n works.
+
+  - how to check zh_CN locale options page.
+    about:config
+    general.useragent.locale
+    set to zh-CN
+    need to restart firefox.
+
+    addon name and description works.
+    options page still show English.
+    options page only fetch English message.json, not other languages.
+    confirm in zh-CN and zh locale, it doesn't fetch _locale/zh_CN/messages.json
+
+    search: browser.i18n.getMessage always fetch English
+
 ** 2017-10-18 disabled website 可以开放出来了。fix bug #15
 (ignore-on "https://www.qidian.com/")
 (ignore-on "https://.*\.qidian\.com/")
