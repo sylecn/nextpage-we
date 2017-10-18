@@ -19,14 +19,18 @@
 // through which recipients can access the Corresponding Source.
 
 (function () {
-    let debugging = function () {return true;};
-    let debugKeyEvents = function () {return true;};
-    let debugGotoNextPage = function () {return false;};
-    let debugSpecialCase = function () {return false;};
-    let debugATag = function () {return false;};
-    let debugDomainCheck = function () {return false;};
-    let debugContentEditable = function () {return false;};
-    let debugIFrame = function () {return false;};
+    let variables = {};
+
+    let debugging = function () {return variables.debugging;};
+    let debugKeyEvents = function () {return variables.debugKeyEvents;};
+    let debugGotoNextPage = function () {return variables.debugGotoNextPage;};
+    let debugSpecialCase = function () {return variables.debugSpecialCase;};
+    let debugATag = function () {return variables.debugATag;};
+    let debugDomainCheck = function () {return variables.debugDomainCheck;};
+    let debugContentEditable = function () {
+        return variables.debugContentEditable;
+    };
+    let debugIFrame = function () {return variables.debugIFrame;};
     let log = console.log;
 
     /**
@@ -856,16 +860,25 @@
         window.history.back();
     };
 
+    let closeTab = function () {
+        // Note: Scripts may not close windows that were not opened by script.
+        // So window.close() doesn't work.
+        // TODO implement me.
+        log("close-tab is not implemented");
+    };
+
+    let bindings = {
+        "n": "nextpage",
+        "p": "history-back",
+        "SPC": "nextpage-maybe"
+    };
+
     /**
-     * user's key bindings.
-     * TODO make this configurable.
+     * return user's key bindings.
+     * it's a dict of {key-name: command-name}
      */
     let getBindings = function () {
-        return {
-            "n": "nextpage",
-            "p": "history-back",
-            "SPC": "nextpage-maybe"
-        }
+        return bindings;
     };
 
     /**
@@ -876,6 +889,7 @@
 	case "nextpage-maybe": return gotoNextPageMaybe();
 	case "nextpage": return gotoNextPage();
 	case "history-back": return historyBack();
+        case "close-tab": return closeTab();
 	case "nil": break;	//do nothing.
 	default:
 	    if (debugging()) {
@@ -885,9 +899,26 @@
 	};
     }
 
+    // read parsed user config if there is one.
+    let store = browser.storage.sync;
+    const STORAGE_KEY_PARSED_CONFIG = 'user-config-parsed';
+    let getKey = store.get(STORAGE_KEY_PARSED_CONFIG);
+    getKey.then((result) => {
+        parsedConfig = result[STORAGE_KEY_PARSED_CONFIG] || {};
+        if (parsedConfig.bindings) {
+            // modify lexical variable, next time getBindings() should return
+            // latest value.
+            bindings = parsedConfig.bindings;
+            variables = parsedConfig.variables;
+            if (debugging()) {
+                log("parsed user config loaded: " + JSON.stringify(bindings));
+            }
+        }
+    }, log);
+
     document.addEventListener("keypress", function (e) {
         let key = utils.describeKeyInEmacsNotation(e);
-        if (debugKeyEvents) {
+        if (debugKeyEvents()) {
             log("keypress in emacs notation: " + key);
         }
         if (userIsTyping()) {
@@ -908,6 +939,24 @@
             }
         }
     });
+
+    document.addEventListener("click", function (e) {
+        var key = utils.describeMouseEventInEmacsNotation(e);
+	if (debugKeyEvents()) {
+	    log("mouseclick: " + key);
+	}
+        if (skipWebsite(e)) {
+            return;
+        }
+        if (shouldIgnoreKey(key)) {
+            return;
+        }
+	let command = getBindings()[key];
+	if (typeof(command) !== "undefined") {
+	    runUserCommand(command);
+	};
+    });
+
 })();
 
 // Local Variables:

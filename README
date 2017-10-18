@@ -9,9 +9,109 @@ Time-stamp: <2017-10-18>
 Browser Extensions - Mozilla | MDN
 https://developer.mozilla.org/en-US/Add-ons/WebExtensions
 
+Content scripts - Mozilla | MDN
+https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Content_scripts
+Options page - Mozilla | MDN
+https://developer.mozilla.org/en-US/Add-ons/WebExtensions/user_interface/Options_pages
+storage.sync - Mozilla | MDN
+https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/storage/sync
+
 * todos								      :entry:
 ** 
-** 2017-10-18 make basic things work.
+** 2017-10-18 config file help URL is down.
+** 2017-10-18 changelog for 2.0.0
+- [feature] support firefox 57+
+- [feature] user configuration is now synced by browser if you logged in.
+- This version is a rewrite in Web Extension API. There are two changes that
+  may affect user experience.
+  - User config file ~/.config/nextpage.lisp is obsolete. If you have created
+    user config file, please copy & paste the text to the new options window.
+  - If some resource of a page loads very slow, nextpage hotkeys may not work
+    on them.
+  - Please report a bug if you have other issues in the new version.
+-
+** 2017-10-18 disabled website 可以开放出来了。fix bug #15
+(ignore-on "http://read.qidian.com/")
+
+* done								      :entry:
+** 2017-10-18 add an options page. store user hotkeys somewhere.
+- make user config file backward compatible.
+- ~/projects/firefox/nextpage/src/chrome/content/config.jsm
+- the old preferences window
+  config file: ~/.config/nextpage.lisp
+
+  built-in config:
+  (bind "SPC" 'nextpage-maybe)
+  (bind "n" 'nextpage)
+  (bind "p" 'history-back)
+
+  user config:
+  <text area>
+
+  [save & reload] [reload only] [Help]
+- just remake it using WE api.
+  Options page - Mozilla | MDN
+  https://developer.mozilla.org/en-US/Add-ons/WebExtensions/user_interface/Options_pages
+
+  reading a local text file is impossible now.
+  maybe for security reasons.
+  I will need to store the user configuration somewhere else.
+
+  just use add-on storage api.
+  https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/Storage
+
+  parse result:
+  see parseUserConfig docstring.
+
+  make sure this works:
+  1. open webpage. n, p, space works.
+  2. change user config.
+     #+BEGIN_SRC lisp
+       ;; user config
+       (enable-debug)
+       (bind "SPC" 'nextpage-maybe)
+       (bind "M-n" 'nextpage)
+       (bind "p" 'history-back)
+     #+END_SRC
+     save and reload.
+  3. open new webpage. M-n, p, SPC works.
+  4. in old webpage. default key works. M-n doesn't.
+- make mouse click work.
+- if user clear user config, clear the parsed config key.
+- update src/usage.html, there is no longer "file" concept.
+
+  To retain old behavior, if user doesn't say unbind-all, all built-in binding
+  should continue work.
+- 
+
+- problems
+  - how should the two communicate? content script and options page?
+    I can just read key map from storage api. this way it's always latest.
+    when reload, just parse user config and store it in another key.
+
+    notify page script to update a lexical binding is better.
+    especially those debug variables.
+    I don't like reading from pref for all of them.
+
+    It will make things too complicated. Just make config work in new
+    tabs. Leave existing tabs alone.
+  - DONE remove all occurrence of in_overlay checks
+  - storage saved in browser.storage.sync can't get back.
+    storage.local has the same problem.
+    I can't get back what I put in.
+
+    I see the problem.
+    let setKey = store.set({
+	    STORAGE_KEY_USER_CONFIG: newUserConfig,
+	    STORAGE_KEY_PARSED_CONFIG: parsedUserConfig
+    });
+    the capital name becomes object literal, not constant!
+    you can force evaluation of the const using [CONST_NAME].
+
+    works now.
+  - 
+
+** DONE 2017-10-18 make basic things work.
 2017-10-18 16:46:15 basic things work.
 test whether there are any js errors, then make a commit.
 
@@ -25,6 +125,5 @@ test whether there are any js errors, then make a commit.
 
     I will keep it simple. just use old javascript.
 
-  - TODO search for content\. after migrating. content is not needed in WE.
+  - DONE search for content\. after migrating. content is not needed in WE.
 
-** 2017-10-18 add an options page. store user hotkeys somewhere.

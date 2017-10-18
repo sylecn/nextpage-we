@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <title>nextpage add-on help</title>
+    <style type="text/css">
+      dl {margin-left: 20px;}
+      table {margin-left: 50px; width: 500px; border: 1px solid black; border-collapse: collapse;}
+      th, td {border: 1px solid black;}
+      pre {margin-left: 20px;}
+      dt {margin-top: 10px;}
+
+      #key-table {width: 300px;}
+      #key-table td {text-align: center;}
+      .keyname {font-family: monospace; font-size:1.3em;}
+      .command-name {font-family: monospace; font-size:1.3em;}
+    </style>
+  </head>
+
+  <body>
+    <h1>Nextpage Add-on Help</h1>
+    <h3>Overview</h3>
+    <p>In nextpage v2.0.0, user config is refined to allow users to bind keys to command as they wish. This document describes how to use it.</p>
+    <p>If you have used user config file before v2.0.0, you need to copy your config to the user config area in add-on preferences. The old config file ~/.config/nextpage.lisp is no longer read by nextpage after v2.0.0 when nextpage is rewritten in <a href="https://developer.mozilla.org/en-US/Add-ons/WebExtensions">Web Extension</a>.</p>
+    <h3>About User Config</h3>
+    <p>You may open nextpage add-on options to see the built-in config and user config. The built-in config defines default bindings and is always active. It is shipped with each version of nextpage and you can't edit it. The user config is a property stored in firefox <a href="https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/storage/sync">storage.sync</a>, which is empty by default. The user config could be used to overwrite built-in config. You may remove or modify default bindings defined in built-in config or add new bindings. The user config is synced across firefox if you have logged in firefox.</p>
+
+    <p>After you edit user config, click "Save" button to save it. New config will be effective in new tabs or new document opened in existing tabs.</p>
+
+    <p>The config file has a lisp-like syntax. Lines started with ; are comments and they are ignored by the parser. To temporarily disable a command, you may comment a line by adding ";;" at the beginning of that line.</p>
+    <p>Each command must be put in a separate line, because I haven't implemented an sexp parser yet.</p>
+    <h4>Supported Commands</h4>
+    <dl>
+      <dt>(bind KEY-NAME COMMAND-NAME)</dt>
+      <dd>Bind a key to a command. The syntax used to define KEY-NAME is shown in later section.</dd>
+
+      <dt>(unbind-all)</dt>
+      <dd>Remove all previous bindings before this command, including built-in bindings.<br/>If you don't want to use any of the built-in key bindings, add this to the top of your user config file.</dd>
+    </dl>
+
+    <h4>Built-in config</h4>
+    <p>This serves an example of how to write a user config.</p>
+    <pre>(bind "SPC" 'nextpage-maybe)
+(bind "n" 'nextpage)
+(bind "p" 'history-back)
+</pre>
+    <p>Keys are wrapped with double quotes, command is prefixed with single quote. This just mimic emacs <code>(global-set-key (kbd "C-c U") 'rename-uniquely)</code> key-bindings.</p>
+    <p>Here are some optional key bindings that is provided in older versions of nextpage. You may add them in your user config file if you like.</p>
+    <pre>(bind "1" 'history-back)
+(bind "2" 'nextpage)
+(bind "M-p" 'history-back)
+(bind "M-n" 'nextpage)
+</pre>
+
+    <h4>Bind Command: Keys</h4>
+    <p>A subset of Emacs key names are used in bind. Here is a table to get you started.</p>
+    <table id="key-table">
+      <tr><th>Key Name</th><th>Meaning</th></tr>
+      <tr><td class="keyname">a</td><td>key A</td></tr>
+      <tr><td class="keyname">C-a</td><td>Ctrl-A</td></tr>
+      <tr><td class="keyname">M-a</td><td>Alt-A</td></tr>
+      <tr><td class="keyname">C-M-a</td><td>Ctrl-Alt-A</td></tr>
+      <tr><td class="keyname">SPC</td><td>Space</td></tr>
+      <tr><td class="keyname">&lt;f11&gt;</td><td>F11</td></tr>
+      <tr><td class="keyname">&lt;C-S-f11&gt;</td><td>Ctrl-Shift-F11</td></tr>
+      <tr><td class="keyname">&lt;left&gt;</td><td>Left Arrow</td></tr>
+      <tr><td class="keyname">&lt;mouse-4&gt;</td><td>mouse backward</td></tr>
+      <tr><td class="keyname">&lt;mouse-5&gt;</td><td>mouse forward</td></tr>
+    </table>
+    <p>Check the source code of this add-on to know exactly which keys are supported. <a href="https://github.com/sylecn/ff-nextpage/issues">Report a bug</a> if the key you want to use is not supported by nextpage.</p>
+    <p>Key names are case sensitive. Key names are typed with double quotes in bind command. e.g. "M-n".</p>
+    <p>If you have emacs installed, to known a key's key name (the string representation), start emacs and type C-h c, then type your key. The key name will be shown in minibuffer. Note that key sequence is not supported by nextpage. So you can't bind "C-x n" to nextpage command.</p>
+    <p>For more document, see emacs document <a href="http://www.gnu.org/software/emacs/manual/html_node/emacs/Keys.html#Keys">Keys</a>, <a href="http://www.gnu.org/software/emacs/manual/html_node/emacs/Commands.html#Commands">Commands</a> and <a href="http://www.gnu.org/software/emacs/manual/html_node/emacs/Key-Bindings.html#Key-Bindings">Key Bindings</a>.</p>
+
+    <h4>Bind Command: Commands</h4>
+    <p>Available commands:</p>
+    <table>
+      <tr><th>Command</th><th>Meaning</th></tr>
+      <tr><td class="command-name">nextpage-maybe</td><td>scroll up / next page</td></tr>
+      <tr><td class="command-name">nextpage</td><td>next page</tr>
+      <tr><td class="command-name">history-back</td><td>go back one page in history</tr>
+      <tr><td class="command-name">nil</td><td>do nothing</tr>
+    </table>
+    <p>Commands should be quoted in bind command. For command foo, use single quote form 'foo. Currently omitting the quote also works, but this may change if I choose to introduce a full lisp parser in the future.</p>
+    <p>About the nil command: You can disable a key-binding by binding the same key to nil. For example, <code>(bind "SPC" 'nil)</code> will disable the built-in Space binding.</p>
+
+    <script type="text/javascript">
+      var nextpageShowPreferences = function () {
+          browser.runtime.openOptionsPage();
+          return false;
+      }
+    </script>
+  </body>
+
+</html>

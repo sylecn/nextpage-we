@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>nextpage options</title>
+    <style type="text/css">
+      .container {
+      width: 100%;
+      max-width: 600px;
+      margin: auto;
+      }
+      .row {
+	  width: 100%;
+	  margin: 8px 0;
+      }
+      textarea {
+	  width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h3>Nextpage Add-on Options</h3>
+      <div class="row">Built-in Config:</div>
+      <textarea name="built-in-config" id="built-in-config" rows="5" readonly></textarea>
+      <div class="row">User Config:</div>
+      <textarea name="user-config" id="user-config" rows="15"></textarea>
+      <textarea name="log" id="log" rows="4" readonly></textarea>
+      <div class="row">
+	<button id="save-and-reload" name="save-and-reload">Save</button>
+	<button id="help" name="help">Help</button>
+      </div>
+      <div class="row">If you found a problem and would like to get it fixed, please <a href="https://github.com/sylecn/ff-nextpage/issues">report a bug</a>.</div>
+    </div>
+    <script type="text/javascript" src="options.js"></script>
+  </body>
+
+</html>

@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "nextpage",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "description": "use SPC key to goto next page when at the bottom of a page.",
     "icons": {
 	"48": "icons/extensionGeneric.svg"
@@ -12,10 +12,17 @@
 	    "js": ["nextpage.js"]
 	}
     ],
+    "options_ui": {
+	"page": "options.html",
+	"browser_style": true
+    },
     "applications": {
 	"gecko": {
 	    "id": "nextpage@yuanle.song",
 	    "update_url": "https://nextpage.emacsos.com/updates.json"
 	}
-    }
+    },
+    "permissions": [
+	"storage"
+    ]
 }
