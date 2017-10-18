@@ -50,16 +50,18 @@ https://developer.mozilla.org/en-US/Add-ons/AMO/Policy/Agreement
 Add-on Policies - Mozilla | MDN
 https://developer.mozilla.org/en-US/Add-ons/AMO/Policy/Reviews
 
-* todos								      :entry:
-** 
+* waiting							      :entry:
+** 2017-10-18 in add-on website, config file help URL is down.
 ** 2017-10-19 zh_CN's messages.json is not read by firefox.
 not sure why.
+* todos								      :entry:
+** 
+** 2017-10-19 test it on android. is there a swipe event I can bind to?
 ** 2017-10-19 send notification when next page link is not found.
 see example here:
 webextensions-examples/background-script.js at master · mdn/webextensions-examples
 https://github.com/mdn/webextensions-examples/blob/master/notify-link-clicks-i18n/background-script.js
 
-** 2017-10-18 in add-on website, config file help URL is down.
 ** 2017-10-18 changelog for first 2.x release
 - [feature] support firefox 57+
 - [feature] user configuration is now synced by browser if you logged in.
@@ -88,7 +90,16 @@ https://github.com/mdn/webextensions-examples/blob/master/notify-link-clicks-i18
 
     TODO localization is not added yet. Chinese users will lose UI.
 
-  - 
+  - validator doesn't like usage of .innerHTML
+    how to update h3 and span in javascript without using innerHTML?
+
+    search: update span without using innerHTML
+    using innerText
+    or textContent
+
+    myDiv.childNodes[0].nodeValue = "The text has been changed.";
+
+    document.getElementById('elementid').firstChild.nodeValue = new_text;
 
 * done								      :entry:
 ** 2017-10-19 run jslint on my js files
