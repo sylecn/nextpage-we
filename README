@@ -57,6 +57,8 @@ not sure why.
 * todos								      :entry:
 ** 
 ** 2017-10-19 test it on android. is there a swipe event I can bind to?
+add a right arrow button on url bar, also add menu item.
+
 ** 2017-10-19 send notification when next page link is not found.
 see example here:
 webextensions-examples/background-script.js at master · mdn/webextensions-examples

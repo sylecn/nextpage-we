@@ -18,7 +18,7 @@
 // section 4, provided you include this license notice and a URL
 // through which recipients can access the Corresponding Source.
 
-/* global Iterator, KeyEvent */
+/* global KeyEvent */
 (function () {
     let i;
     let variables = {};
@@ -117,11 +117,7 @@
      */
     let shouldIgnoreKey = function (key) {
         const url = utils.getURL();
-        let it = Iterator(ignoreBindingAList);
-        let v;
-        for (let pair in it) {
-            // ignore the index, get the value in pair.
-            v = pair[1];
+        for (let v of ignoreBindingAList) {
             if (url.match(v[0])) {
                 if (v[1] === "") {
                     // user explicitly says do not ingore any key
@@ -888,6 +884,9 @@
      * run user command
      */
     let runUserCommand = function (command) {
+        if (debugGotoNextPage()) {
+            log("runUserCommand: " + command);
+        }
         switch (command) {
         case "nextpage-maybe": return gotoNextPageMaybe();
         case "nextpage": return gotoNextPage();
@@ -914,7 +913,10 @@
             bindings = parsedConfig.bindings;
             variables = parsedConfig.variables;
             if (debugging()) {
-                log("parsed user config loaded: " + JSON.stringify(bindings));
+                log("parsed user config:" + JSON.stringify({
+                    "bindings": bindings,
+                    "variables": variables
+                }));
             }
         }
     }, log);
@@ -925,13 +927,27 @@
             log("keypress in emacs notation: " + key);
         }
         if (userIsTyping()) {
+            if (debugKeyEvents()) {
+                log("user is typing, ignoring key event");
+            }
             return;
         }
         if (skipWebsite(e)) {
+            if (debugKeyEvents()) {
+                log("ignore key event on current website");
+            }
             return;
         }
+        log("not skip website");
         if (shouldIgnoreKey(key)) {
+            log("ignore key event on current website");
+            if (debugKeyEvents()) {
+                log("ignore key event on current website");
+            }
             return;
+        }
+        if (debugKeyEvents()) {
+            log("will process key: " + key);
         }
         let command = getBindings()[key];
         if (typeof(command) !== "undefined") {
