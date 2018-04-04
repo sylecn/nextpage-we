@@ -1,5 +1,5 @@
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Yuanle
-// Song <sylecn@gmail.com>
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Yuanle Song <sylecn@gmail.com>
 //
 // The JavaScript code in this page is free software: you can
 // redistribute it and/or modify it under the terms of the GNU
@@ -18,8 +18,9 @@
 // section 4, provided you include this license notice and a URL
 // through which recipients can access the Corresponding Source.
 
-/* global KeyEvent */
+/* global KeyEvent, store */
 (function () {
+    'use strict';
     let i;
     let variables = {};
 
@@ -805,6 +806,16 @@
                     return false;
                 }
                 nextpageLink.click();
+
+                // Chrome v65: .click() doesn't follow link on <LINK> element.
+                if (nextpageLink.tagName.toUpperCase() === "LINK") {
+                    let oldUrl = document.location.href;
+                    window.setTimeout(function () {
+                        if (document.location.href === oldUrl) {
+                            document.location.href = nextpageLink.href;
+                        }
+                    }, 200);
+                }
             }
             // if there is a chance to return anything.
             return true;
@@ -833,10 +844,10 @@
             return false;
         }
 
-        if (window.scrollMaxY <= window.scrollY) {
-            return true;
+        if (typeof(window.scrollMaxY) !== 'undefined') {
+            return window.scrollMaxY <= window.scrollY;
         } else {
-            return false;
+            return window.innerHeight + window.scrollY >= document.body.offsetHeight;
         }
     };
 
@@ -902,10 +913,8 @@
     };
 
     // read parsed user config if there is one.
-    let store = browser.storage.sync;
     const STORAGE_KEY_PARSED_CONFIG = 'user-config-parsed';
-    let getKey = store.get(STORAGE_KEY_PARSED_CONFIG);
-    getKey.then((result) => {
+    store.get(STORAGE_KEY_PARSED_CONFIG, (result) => {
         let parsedConfig = result[STORAGE_KEY_PARSED_CONFIG] || {};
         if (parsedConfig.bindings) {
             // modify lexical variable, next time getBindings() should return
@@ -938,7 +947,9 @@
             }
             return;
         }
-        log("not skip website");
+        if (debugKeyEvents()) {
+            log("not skip website");
+        }
         if (shouldIgnoreKey(key)) {
             log("ignore key event on current website");
             if (debugKeyEvents()) {

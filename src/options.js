@@ -1,10 +1,11 @@
+/* global store */
 (function(){
+    'use strict';
     const STORAGE_KEY_USER_CONFIG = 'user-config-text';
     const STORAGE_KEY_PARSED_CONFIG = 'user-config-parsed';
     const DEFAULT_CONFIG_TEXT = '(bind "SPC" \'nextpage-maybe)\n' +
           '(bind "n" \'nextpage)\n' +
           '(bind "p" \'history-back)\n';
-    const store = browser.storage.sync;
 
     const logTextarea = document.getElementById("log");
     /**
@@ -35,11 +36,12 @@
      * use reloadUserConfig if you want to reload user config.
      */
     let showUserConfig = function () {
-        let getKey = store.get(STORAGE_KEY_USER_CONFIG);
-        getKey.then((result) => {
-            document.getElementById('user-config').value =
-                result[STORAGE_KEY_USER_CONFIG] || "";
-        }, onError);
+        store.get(
+            STORAGE_KEY_USER_CONFIG,
+            (result) => {
+                document.getElementById('user-config').value =
+                    result[STORAGE_KEY_USER_CONFIG] || "";
+            }, onError);
     };
 
     const VALID_COMMANDS = ["nextpage-maybe",
@@ -203,9 +205,10 @@
      * clear user config.
      */
     let clearUserConfig = function () {
-        let removeKey = store.remove([STORAGE_KEY_USER_CONFIG,
-                                      STORAGE_KEY_PARSED_CONFIG]);
-        removeKey.then(function () {
+        store.remove([
+            STORAGE_KEY_USER_CONFIG,
+            STORAGE_KEY_PARSED_CONFIG
+        ], function () {
             setLog("user config removed, using built-in config now");
         }, function (error) {
             setLog("remove user config failed: " + error);
@@ -227,11 +230,10 @@
             log("parse failed. user config not saved.");
             return;
         }
-        let setKey = store.set({
+        store.set({
             [STORAGE_KEY_USER_CONFIG]: newUserConfig,
             [STORAGE_KEY_PARSED_CONFIG]: parsedUserConfig
-        });
-        setKey.then(function () {
+        }, function () {
             setLog("user config saved");
         }, function (error) {
             setLog("save user config failed: " + error);
@@ -252,8 +254,10 @@
         document.getElementById('help').addEventListener('click', help);
 
         // I18N
+        let getMessage = (typeof(browser) === "undefined"? chrome : browser).i18n.getMessage;
+
         let updateText = function (elementId, messageId) {
-            document.getElementById(elementId).firstChild.nodeValue = browser.i18n.getMessage(messageId);
+            document.getElementById(elementId).firstChild.nodeValue = getMessage(messageId);
         };
         let labelMapping = [
             ["title", "nextPageAddOnOptions"],

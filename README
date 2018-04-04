@@ -1,6 +1,6 @@
 * COMMENT -*- mode: org -*-
 #+Date: 2017-02-24
-Time-stamp: <2017-10-19>
+Time-stamp: <2018-04-04>
 
 * Rewrite nextpage add-on using WebExtensions
 
@@ -19,6 +19,10 @@ Publishing your extension - Mozilla | MDN
 https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Publishing_your_WebExtension
 Internationalization - Mozilla | MDN
 https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Internationalization
+
+** Chrome Extension documents
+Developer's Guide - Google Chrome
+https://developer.chrome.com/extensions/devguide
 
 ** how to test web extension on localhost?
 Open "about:debugging" in Firefox, click "Load Temporary Add-on" and select
@@ -56,6 +60,19 @@ https://developer.mozilla.org/en-US/Add-ons/AMO/Policy/Reviews
 not sure why.
 * todos								      :entry:
 ** 
+** 2018-04-04 feature request: allow bind copy-title-and-url-maybe.
+this is for myself. not in default config.
+I can remove the tabcopy add-on and copy fixer add-on when this is done.
+
+(bind "C-c" 'copy-title-and-url-maybe)
+
+make it work in both firefox and chrome.
+
+** 2018-04-04 bug: in firefox, doc link doesn't link to help page in preferences page.
+- see also the bug in waiting section. that's mozilla's add-on website.
+- in chrome, there is a "Help" button, which opens the help page.
+- 
+
 ** 2017-10-19 test it on android. is there a swipe event I can bind to?
 add a right arrow button on url bar, also add menu item.
 
@@ -65,6 +82,141 @@ webextensions-examples/background-script.js at master · mdn/webextensions-examp
 https://github.com/mdn/webextensions-examples/blob/master/notify-link-clicks-i18n/background-script.js
 
 * done								      :entry:
+** 2018-03-13 make it work in chrome browser.
+- create a new manifest.json for chrome. drop some unsupported keys.
+- make browser.storage.sync optional in nextpage.js and options.js
+  or use chrome's sync object.
+- I tried it on x201 today. n key already works. SPC key doesn't work.
+
+- 2018-04-04 continue this.
+  I designed the firefox extension first.
+  I will focus on
+  - how to sync user configuration across sessions.
+
+    https://developer.chrome.com/extensions/options
+
+    Use the storage.sync API to persist these preferences. These values will
+    then become accessible in any script within your extension, on all your
+    user's devices.
+
+    chrome.storage.sync.set(data, callback);
+    chrome.storage.sync.get(keyWithDefaultValues, callback);
+
+- fix any bugs.
+  - nextpage.js:905 browser is not defined
+    nextpage.js:979
+
+    https://developer.chrome.com/extensions/storage#type-StorageArea
+    StorageArea api is not the same.
+    in firefox, .get return a Promise.
+    in chrome, you pass in a callback function.
+
+    wait, I used .then() api in firefox. not callback.
+    do I need to create a wrapper for storage access?
+
+    search: chrome.storage.sync browser.storage.sync wrapper
+
+    seems none exists. I will create one, just for my needs.
+
+    That's just reading user's parsed config. fixed.
+
+  - preferences page doesn't show up.
+    update manifest.json, key is different.
+
+  - fix storage usage in options.html
+    options.js:7, :273
+
+    I split store code in storage.js
+    I need to load/include this file in both nextpage.js and options.js.
+
+    fix store usage in options.js
+
+  - fix browser.i18n.getMessage in options.js
+    document.getElementById(elementId).firstChild.nodeValue = browser.i18n.getMessage(messageId);
+
+- all test pages work in chrome now.
+  test this build in firefox dev env.
+  make sure I didn't break anything.
+
+  all test page works in firefox.
+
+- problems
+  - try load the unpacked addon.
+    - manifest.json
+      - Unrecognized manifest key 'applications'.
+      - found unexpected key 'browser_style'
+    search: one manifest.json file for both chrome and firefox extension
+
+    I will use jinja2 template.
+    Can I use m4 for this?
+
+    Since there are only two browsers, and manifest file is not updated very
+    frequently, I will just use two files.
+
+    DONE update build process to use manifest-chrome.json for chrome browser.
+  - how to pack for chrome?
+    https://developer.chrome.com/extensions/hosting
+    it's just zip file, same as firefox.
+    DONE I will create a build dir since manifest file is different.
+  - after split storage.js, I listed two js files in content_scripts js.
+    but the later js file can't access the variables defined in first js file.
+
+    https://developer.chrome.com/extensions/content_scripts#execution-environment
+
+    only page script and content script is isolated.
+    doesn't say anything about content scripts in one extension.
+    if js files in each content script is isolated, there is no use to include
+    jquery as an example there.
+
+    Are content scripts supposed to share a single global namespace? - Google Groups
+    https://groups.google.com/forum/#!topic/chromium-extensions/-xdbFNr7Q2I
+
+    #+BEGIN_QUOTE
+    All content scripts for the same extension/page pair should share a
+    context. If you aren't seeing this, it is a bug.
+    #+END_QUOTE
+
+    it's my problem. use var to define global variable.
+    now it works.
+  - in chrome, SPC key doesn't goto next page when at page bottom.
+    n key does work.
+
+    window.scrollMaxY <= window.scrollY
+    this is always false in chrome.
+
+    window.scrollMaxY is undefined in chrome, so it's always <= a number.
+    scrollMaxY is not standard.
+
+    search: detect scrolled to bottom
+    https://stackoverflow.com/questions/9439725/javascript-how-to-detect-if-browser-window-is-scrolled-to-bottom
+    (window.innerHeight + window.scrollY) >= document.body.offsetHeight
+
+    fixed.
+  - doesn't goto next page on debian site.
+    try enable debugging.
+    (enable-debug)
+    (enable-debug-goto-next-page)
+
+    it finds the next page link, but failed to follow the link.
+    <LINK rel="next"> href=https://www.debian.org/releases/stable/amd64/pr01.html.en
+
+    maybe .click() is not supported on this node in chrome.
+
+    test page:
+    https://www.debian.org/releases/stable/amd64/
+    var head = document.getElementsByTagName('head');
+    var lastElement = head[0].lastElementChild;
+    lastElement
+    lastElement.click()
+    the click() function is defined, but it doesn't goto that URL in chrome.
+
+    document.location.href = lastElement.href;
+
+    (lastElement.tagName.toUpperCase() === "LINK")
+
+    fixed.
+  - 
+
 ** 2017-10-18 changelog for first 2.x release
 - [feature] support firefox 57+
 - [feature] user configuration is now synced by browser if you logged in.

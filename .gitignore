@@ -1,3 +1,4 @@
+src/manifest.json
 *.zip
 other-assets/
 node_modules/
