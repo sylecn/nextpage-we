@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     <title>nextpage add-on help</title>
-    <style type="text/css">
+    <style>
       dl {margin-left: 20px;}
       table {margin-left: 50px; width: 500px; border: 1px solid black; border-collapse: collapse;}
       th, td {border: 1px solid black;}
@@ -85,9 +85,11 @@
     <table>
       <tr><th>Command</th><th>Meaning</th></tr>
       <tr><td class="command-name">nextpage-maybe</td><td>scroll up / next page</td></tr>
-      <tr><td class="command-name">nextpage</td><td>next page</tr>
-      <tr><td class="command-name">history-back</td><td>go back one page in history</tr>
-      <tr><td class="command-name">nil</td><td>do nothing</tr>
+      <tr><td class="command-name">nextpage</td><td>next page</td></tr>
+      <tr><td class="command-name">history-back</td><td>go back one page in history</td></tr>
+      <tr><td class="command-name">copy-title-and-url-maybe</td><td>copy page title and url to clipboard if no text is being selected</td></tr>
+      <tr><td class="command-name">copy-title-and-url</td><td>copy page title and url to clipboard</td></tr>
+      <tr><td class="command-name">nil</td><td>do nothing</td></tr>
     </table>
     <p>Commands should be quoted in bind command. For command foo, use single quote form 'foo. Currently omitting the quote also works, but this may change if I choose to introduce a full lisp parser in the future.</p>
     <p>About the nil command: You can disable a key-binding by binding the same key to nil. For example, <code>(bind "SPC" 'nil)</code> will disable the built-in Space binding.</p>

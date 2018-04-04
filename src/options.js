@@ -48,6 +48,8 @@
                             "nextpage",
                             "history-back",
                             "close-tab",
+                            "copy-title-and-url",
+                            "copy-title-and-url-maybe",
                             "nil"];
     /**
      * returns true if given nextpage config command is valid.

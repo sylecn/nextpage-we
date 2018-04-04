@@ -164,6 +164,27 @@
 
     let utils = {
         /**
+         * copy given text to clipboard. requires firefox 22, chrome 58.
+         */
+        copyToClipboard: function (text) {
+            let copyTextToClipboard = function (e) {
+                e.preventDefault();
+                e.clipboardData.setData('text/plain', text);
+            };
+            try {
+                document.addEventListener('copy', copyTextToClipboard);
+                try {
+                    document.execCommand('copy');
+                } catch (e) {
+                    // eslint-disable-next-line no-console
+                    log("copy to clipboard failed: " + e);
+                }
+            } finally {
+                document.removeEventListener('copy', copyTextToClipboard);
+            }
+        },
+
+        /**
          * test whether an element is in an array
          * @return true if it is.
          * @return false otherwise.
@@ -870,6 +891,27 @@
         window.history.back();
     };
 
+    /**
+     * copy page title and url to clipboard.
+     */
+    let copyTitleAndUrl = function () {
+        let title = document.title;
+        let url = document.URL;
+        let titleAndUrl = title + "\n" + url;
+        utils.copyToClipboard(titleAndUrl);
+    };
+
+    /**
+     * copy page title and url to clipboard, if no text is selected.
+     */
+    let copyTitleAndUrlMaybe = function () {
+        let selection = window.getSelection();
+        if (! selection.isCollapsed) {
+            return;
+        }
+        copyTitleAndUrl();
+    };
+
     let closeTab = function () {
         // Note: Scripts may not close windows that were not opened by script.
         // So window.close() doesn't work.
@@ -903,6 +945,8 @@
         case "nextpage": return gotoNextPage();
         case "history-back": return historyBack();
         case "close-tab": return closeTab();
+        case "copy-title-and-url": return copyTitleAndUrl();
+        case "copy-title-and-url-maybe": return copyTitleAndUrlMaybe();
         case "nil": break;      //do nothing.
         default:
             if (debugging()) {

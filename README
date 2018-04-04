@@ -1,6 +1,6 @@
 * COMMENT -*- mode: org -*-
 #+Date: 2017-02-24
-Time-stamp: <2018-04-04>
+Time-stamp: <2018-04-05>
 
 * Rewrite nextpage add-on using WebExtensions
 
@@ -19,10 +19,22 @@ Publishing your extension - Mozilla | MDN
 https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Publishing_your_WebExtension
 Internationalization - Mozilla | MDN
 https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Internationalization
+Interact with the clipboard - Mozilla | MDN
+https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Interact_with_the_clipboard
+https://developer.mozilla.org/en-US/docs/Web/API/Document/execCommand
 
 ** Chrome Extension documents
 Developer's Guide - Google Chrome
 https://developer.chrome.com/extensions/devguide
+
+JavaScript APIs - Google Chrome
+https://developer.chrome.com/extensions/api_index
+
+chrome.commands - Google Chrome
+https://developer.chrome.com/extensions/commands
+
+Message Passing - Google Chrome
+https://developer.chrome.com/extensions/messaging
 
 ** how to test web extension on localhost?
 Open "about:debugging" in Firefox, click "Load Temporary Add-on" and select
@@ -54,24 +66,43 @@ https://developer.mozilla.org/en-US/Add-ons/AMO/Policy/Agreement
 Add-on Policies - Mozilla | MDN
 https://developer.mozilla.org/en-US/Add-ons/AMO/Policy/Reviews
 
+** in user config, how to add new command for user to bind?
+- update config file parser in options.js, namely VALID_COMMANDS
+- update command interpreter in nextpage.js, namely runUserCommand
+  - add command implementation in nextpage.js
+- update "Available commands:" in ./src/usage.html
+
 * waiting							      :entry:
+** 2018-04-04 known problem: in chrome, Ctrl and Alt hotkeys are not supported in bind config.
+in chrome, C-c etc doesn't trigger a keypress event.
+in order to use these keys, you need to use commands system.
+https://developer.chrome.com/extensions/commands
+I don't know whether hotkey key events are exposed in other ways.
 ** 2017-10-18 in add-on website, config file help URL is down.
 ** 2017-10-19 zh_CN's messages.json is not read by firefox.
 not sure why.
 * todos								      :entry:
 ** 
-** 2018-04-04 feature request: allow bind copy-title-and-url-maybe.
-this is for myself. not in default config.
-I can remove the tabcopy add-on and copy fixer add-on when this is done.
+** 2018-04-05 publish extension on chrome webstore
+- problems
+  - I see this notice on developer dashboard.
 
-(bind "C-c" 'copy-title-and-url-maybe)
+    As of November 21st, 2016, all newly published packaged or hosted apps are
+    restricted to Chrome OS, and are not available to users on Windows, Mac or
+    Linux.
 
-make it work in both firefox and chrome.
+    All packaged and hosted apps will be removed from Chrome Web Store search
+    & browse functions in mid-December 2017. Existing apps will continue to
+    work and receive updates.
 
-** 2018-04-04 bug: in firefox, doc link doesn't link to help page in preferences page.
-- see also the bug in waiting section. that's mozilla's add-on website.
-- in chrome, there is a "Help" button, which opens the help page.
-- 
+    it links to
+    Chromium Blog: From Chrome Apps to the Web
+    https://blog.chromium.org/2016/08/from-chrome-apps-to-web.html
+
+    //WTF?
+
+    TODO I will read it later.
+  - 
 
 ** 2017-10-19 test it on android. is there a swipe event I can bind to?
 add a right arrow button on url bar, also add menu item.
@@ -82,6 +113,172 @@ webextensions-examples/background-script.js at master · mdn/webextensions-examp
 https://github.com/mdn/webextensions-examples/blob/master/notify-link-clicks-i18n/background-script.js
 
 * done								      :entry:
+** 2018-04-04 feature request: allow bind copy-title-and-url-maybe.
+this is for myself. not in default config.
+I can remove the tabcopy add-on and copy fixer add-on when this is done.
+
+(bind "C-c" 'copy-title-and-url-maybe)
+
+make it work in both firefox and chrome.
+
+- add command implementation
+
+  add in nextpage.js,
+  copyTitleAndUrl
+  copyTitleAndUrlMaybe
+
+- update config file parser.
+  in options.js,
+  update VALID_COMMANDS
+
+- update interpreter
+  in nextpage.js,
+  runUserCommand
+
+- well, since commands work differently in chrome.
+  I can bind c instead of Ctrl-C.
+
+- I will get rid of background script and commands.
+
+  Notes (FYI): to make C-c work in chrome:
+
+  add in manifest-chrome.json:
+  #+BEGIN_SRC json
+        "background": {
+            "scripts": ["bg.js"],
+            "persistent": false
+        },
+        "commands": {
+            "copy-title-and-url-maybe": {
+                "suggested_key": {
+                    "default": "Ctrl+C"
+                },
+                "description": "Copy Title and URL to clipboard when no text is selected"
+            }
+        },
+  #+END_SRC
+
+  create bg.js,
+  #+BEGIN_SRC js
+    (function () {
+        // eslint-disable-next-line no-console
+        let log = console.log;
+
+        if (typeof(chrome) !== 'undefined' &&
+            typeof(chrome.commands) !== 'undefined') {
+            chrome.commands.onCommand.addListener(function(command) {
+                switch (command) {
+                case "copy-title-and-url":
+                case "copy-title-and-url-maybe":
+                    chrome.tabs.query({
+                        active: true,
+                        currentWindow: true
+                    }, function(tabs) {
+                        chrome.tabs.sendMessage(tabs[0].id, {"onCommand": command});
+                    });
+                    break;
+                default:
+                    log('command not supported:', command);
+                }
+            });
+        }
+    })();
+  #+END_SRC
+
+  add in nextpage.js,
+  #+BEGIN_SRC js
+    // use command system to handle combination keys
+    if (typeof(chrome) !== 'undefined' &&
+        typeof(chrome.runtime) !== 'undefined') {
+        chrome.runtime.onMessage.addListener(
+            // eslint-disable-next-line no-unused-vars
+            function(request, sender, sendResponse) {
+                if (typeof(request.onCommand) === 'undefined') {
+                    return;
+                }
+                let command = request.onCommand;
+                switch (command) {
+                case "copy-title-and-url":
+                    copyTitleAndUrl();
+                    break;
+                case "copy-title-and-url-maybe":
+                    copyTitleAndUrlMaybe();
+                    break;
+                default:
+                    log("unknown command: ", command);
+                }
+            });
+    }
+  #+END_SRC
+
+- problems
+  - how to check whether some text is selected?
+    I think I have this code somewhere.
+
+    var selection = window.getSelection();
+
+  - how to copy text to clipboard?
+
+    just check how TabCopy do it.
+
+    ~/.config/google-chrome/Default/Extensions/micdllihgoppmejpecmkilggmaagfdmb/
+    copyToClipboard()
+
+    it modify doc.oncopy to manually overwrite clipboardData, then call
+    doc.execCommand('copy') so the oncopy event handler is run.
+
+    this is mentioned in
+    https://developer.mozilla.org/en-US/docs/Web/Events/copy
+
+  - TODO bug: when saving user config, no warning given when there is unknown
+    command.
+
+  - in chrome, C-c doesn't trigger runUserCommand() at all.
+
+    (enable-debug-for-key-events)
+
+    no keypress event when press C-c in chrome.
+
+    Since I can't reuse the infrastructures, I will create a separate
+    extension for this.
+
+    How about firefox, does it support this?
+    it works in firefox.
+
+    how to know C-c is pressed in chrome? TabCopy can do it.
+
+    https://developer.chrome.com/extensions/events
+    which events are available in chrome? most apis.
+
+    https://developer.chrome.com/extensions/api_index
+    commands API.
+
+    commands only work with background script (event pages).
+    need to send command event to content script to copy page's title and url.
+    (in bg.js, it will get bg.js's document url, I tried it.)
+
+    works now. although I didn't see the default hotkey shown anywhere in
+    chrome UI.
+
+    https://developer.chrome.com/extensions/commands
+    The user can manually add more shortcuts from the
+    chrome://extensions/configureCommands dialog.
+    (Extensions > Keyboard Shortcuts)
+
+  - how to communicate between background script and content script?
+    https://developer.chrome.com/extensions/messaging
+
+  - C-c doesn't work in options.html textarea, when it's used to copy-title-and-url-maybe.
+
+    problem went away after I removed bg.js and commands.
+    I don't need those anyway.
+
+** 2018-04-04 bug: in firefox, doc link doesn't link to help page in preferences page.
+- see also the bug in waiting section. that's mozilla's add-on website.
+- in chrome, there is a "Help" button, which opens the help page.
+
+// this is not a problem. there is a help button on both firefox and chrome.
+
 ** 2018-03-13 make it work in chrome browser.
 - create a new manifest.json for chrome. drop some unsupported keys.
 - make browser.storage.sync optional in nextpage.js and options.js
