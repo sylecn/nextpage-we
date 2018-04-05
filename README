@@ -37,15 +37,21 @@ Message Passing - Google Chrome
 https://developer.chrome.com/extensions/messaging
 
 ** how to test web extension on localhost?
-Open "about:debugging" in Firefox, click "Load Temporary Add-on" and select
-any file in your extension's directory.
+- Open "about:debugging" in Firefox, click "Load Temporary Add-on" and select
+  any file in your extension's directory.
 
-You can also use web-ext to load temporary WebExtensions from the command line.
-https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Getting_started_with_web-ext
-this requires node LTS and npm.
+  You can also use web-ext to load temporary WebExtensions from the command line.
+  https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Getting_started_with_web-ext
+  this requires node LTS and npm.
+
+- for Chrome, open Extensions page, click load unpacked extension, choose the
+  src dir.
 
 ** how to build extension for distribution?
 just run make
+
+This will create zip files that you can upload to firefox/chrome developer
+page.
 
 ** test pages
 debian install manual:
@@ -56,7 +62,7 @@ fedora doc:
 https://docs-old.fedoraproject.org/en-US/Fedora/26/html/Installation_Guide/index.html
 https://docs-old.fedoraproject.org/en-US/Fedora/26/html/System_Administrators_Guide/index.html
 boost library:
-http://www.boost.org/doc/libs/1_41_0/doc/html/array.html
+https://www.boost.org/doc/libs/1_66_0/doc/html/array.html
 bing search result:
 https://www.bing.com/search?q=debian&qs=n&form=QBLH&sp=-1&pq=debian&sc=8-2&sk=&cvid=B56E4A93A3C4496DA0D9B031F698D9FA
 
@@ -65,6 +71,13 @@ Firefox Add-on Distribution Agreement - Mozilla | MDN
 https://developer.mozilla.org/en-US/Add-ons/AMO/Policy/Agreement
 Add-on Policies - Mozilla | MDN
 https://developer.mozilla.org/en-US/Add-ons/AMO/Policy/Reviews
+
+** distribution URL
+Firefox Developer Hub
+https://addons.mozilla.org/en-US/developers/
+
+Chrome Webstore Developer Dashboard
+https://chrome.google.com/webstore/developer/dashboard
 
 ** in user config, how to add new command for user to bind?
 - update config file parser in options.js, namely VALID_COMMANDS
@@ -83,7 +96,63 @@ I don't know whether hotkey key events are exposed in other ways.
 not sure why.
 * todos								      :entry:
 ** 
+** 2017-10-19 test it on android. is there a swipe event I can bind to?
+add a right arrow button on url bar, also add menu item.
+
+** 2017-10-19 send notification when next page link is not found.
+see example here:
+webextensions-examples/background-script.js at master · mdn/webextensions-examples
+https://github.com/mdn/webextensions-examples/blob/master/notify-link-clicks-i18n/background-script.js
+
+* done								      :entry:
 ** 2018-04-05 publish extension on chrome webstore
+https://chrome.google.com/webstore/developer/dashboard
+
+- release it now.
+
+- Detailed description, can I include links?
+  no.
+
+- need a few 1280x800 screenshot
+
+  could be any design of that size. doesn't necessarily a screenshot.
+
+  ~/d/nextpage-screenshots/
+
+  sc example pages in 640x400
+
+  // image quality is very poor on desktop browser.
+
+  #+BEGIN_QUOTE
+  Applications and themes require at least one screenshot. Extensions may have
+  no screenshots, but such extensions won't be shown in Chrome Web Store's
+  browse functions.
+
+  Provide preferably 4 or 5 screenshots of your app (up to a maximum of 5). If
+  your app supports multiple locales, you can provide locale-specific
+  screenshots. Your screenshot should have square corners and no padding (full
+  bleed).
+
+  We prefer screenshots to be 1280x800 pixels in size, as they will be used in
+  future high dpi displays. Currently, the Chrome Web Store will downscale all
+  screenshots to 640x400, so if your screenshots will not look good downscaled
+  (eg. have a lot of text) or if 1280x800 is too big for your app (screenshot
+  of low resolution game), we also support 640x400 pixels screenshots.
+  #+END_QUOTE
+
+  For now, I should use 640x400 images.
+
+  just put 2 images, one intro, one options page.
+
+- should I enable GA for it?
+
+- A one-time developer registration fee of US$5.00 is required to verify your
+  account and publish items. Learn more
+
+  paid.
+
+- publish okay.
+
 - problems
   - I see this notice on developer dashboard.
 
@@ -101,18 +170,15 @@ not sure why.
 
     //WTF?
 
-    TODO I will read it later.
+    DONE I will read it later. if the store doesn't work, just upload to
+    https://emacsos.com/misc/nextpage-chrome.zip
+
+    this only affects chrome apps. is web extension one kind of chrome apps?
+    nope. it's for apps like atom editor, which is a desktop app that is built
+    on top of chromium.
+
   - 
 
-** 2017-10-19 test it on android. is there a swipe event I can bind to?
-add a right arrow button on url bar, also add menu item.
-
-** 2017-10-19 send notification when next page link is not found.
-see example here:
-webextensions-examples/background-script.js at master · mdn/webextensions-examples
-https://github.com/mdn/webextensions-examples/blob/master/notify-link-clicks-i18n/background-script.js
-
-* done								      :entry:
 ** 2018-04-04 feature request: allow bind copy-title-and-url-maybe.
 this is for myself. not in default config.
 I can remove the tabcopy add-on and copy fixer add-on when this is done.
