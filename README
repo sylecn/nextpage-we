@@ -1,8 +1,11 @@
 * COMMENT -*- mode: org -*-
 #+Date: 2017-02-24
-Time-stamp: <2018-04-05>
+Time-stamp: <2018-04-06>
 
 * Rewrite nextpage add-on using WebExtensions
+
+* Credit
+Icon made by Freepik from www.flaticon.com
 
 * notes								      :entry:
 ** WebExtensions documents
@@ -96,6 +99,18 @@ I don't know whether hotkey key events are exposed in other ways.
 not sure why.
 * todos								      :entry:
 ** 
+** 2018-04-06 svg icon not supported by chrome webstore.
+can't install.
+
+https://developer.chrome.com/apps/manifest/icons
+
+- use png icon.
+  128x128 most commonly used
+  48x48 used in chrome://extensions
+  16x16 favicon
+
+  https://www.flaticon.com/free-icon/next-page-hand-drawn-symbol_35480#term=next%20page&page=1&position=3
+
 ** 2017-10-19 test it on android. is there a swipe event I can bind to?
 add a right arrow button on url bar, also add menu item.
 
