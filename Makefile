@@ -6,5 +6,8 @@ chrome: check
 	@echo "building for chrome..."
 	cd src && ln -f manifest-chrome.json manifest.json && zip -r -x manifest-firefox.json -FS ../nextpage-chrome.zip *
 check:
-	./node_modules/.bin/eslint src/*.js    # see also ./.eslintrc.js
+	@echo "running eslint..."
+	@./node_modules/.bin/eslint src/*.js    # see also ./.eslintrc.js
+	@echo "running misc/test-regexp.js..."
+	@if which node >/dev/null 2>/dev/null; then node misc/test-regexp.js; else jjs misc/test-regexp.js; fi
 .PHONY: build firefox chrome check

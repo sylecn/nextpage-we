@@ -99,6 +99,15 @@ I don't know whether hotkey key events are exposed in other ways.
 not sure why.
 * todos								      :entry:
 ** 
+** 2017-10-19 test it on android. is there a swipe event I can bind to?
+add a right arrow button on url bar, also add menu item.
+
+** 2017-10-19 send notification when next page link is not found.
+see example here:
+webextensions-examples/background-script.js at master · mdn/webextensions-examples
+https://github.com/mdn/webextensions-examples/blob/master/notify-link-clicks-i18n/background-script.js
+
+* done								      :entry:
 ** 2018-04-06 svg icon not supported by chrome webstore.
 can't install.
 
@@ -111,15 +120,6 @@ https://developer.chrome.com/apps/manifest/icons
 
   https://www.flaticon.com/free-icon/next-page-hand-drawn-symbol_35480#term=next%20page&page=1&position=3
 
-** 2017-10-19 test it on android. is there a swipe event I can bind to?
-add a right arrow button on url bar, also add menu item.
-
-** 2017-10-19 send notification when next page link is not found.
-see example here:
-webextensions-examples/background-script.js at master · mdn/webextensions-examples
-https://github.com/mdn/webextensions-examples/blob/master/notify-link-clicks-i18n/background-script.js
-
-* done								      :entry:
 ** 2018-04-05 publish extension on chrome webstore
 https://chrome.google.com/webstore/developer/dashboard
 
