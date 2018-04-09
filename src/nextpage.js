@@ -345,6 +345,26 @@
      * it should return the link object.
      */
 
+    // ninenines hosts doc for a few erlang libraries.
+    // example url:
+    // https://ninenines.eu/docs/en/cowboy/2.3/guide/getting_started/
+    let getLinkForNinenines = function (url, doc) {
+        let navNodes = doc.getElementsByTagName("nav");
+        for (let navNode of navNodes) {
+            if (navNode.getAttribute("style") !== "margin:1em 0") {
+                continue;
+            }
+            let links = navNode.getElementsByTagName("a");
+            for (let link of links) {
+                if (link.getAttribute("style") === "float:right") {
+                    return link;
+                }
+            }
+            return false;
+        }
+        return false;
+    };
+
     let getLinkForDiscuz = function (url, doc) {
         var generator;
         var className;
@@ -636,6 +656,7 @@
          * special case for some website, pre-generic
          */
         var preGeneric = [
+            [/https:\/\/ninenines.eu\/docs\//i, getLinkForNinenines],
             [/\/((thread|forum)-|(viewthread|forumdisplay)\.php)/i, getLinkForDiscuz],
             [/^http:\/\/osdir\.com\/ml\//i, getLinkForOsdirML],
             [/^http:\/\/coding\.derkeiler\.com\/Archive\//i, getLinkForDerkeilerML],
