@@ -889,7 +889,8 @@
         if (typeof(window.scrollMaxY) !== 'undefined') {
             return window.scrollMaxY <= window.scrollY;
         } else {
-            return window.innerHeight + window.scrollY >= document.body.offsetHeight;
+            // 10px is used as float point comparison delta
+            return window.innerHeight + window.scrollY + 10 >= document.body.offsetHeight;
         }
     };
 
