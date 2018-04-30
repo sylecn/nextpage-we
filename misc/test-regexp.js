@@ -9,7 +9,8 @@
 // 3. just a single right arrow, in unicode or HTML entity.
 // 4. "下一页" "下页" etc
 // 5. "Next Chapter" "Thread Next" etc
-var nextPattern = /(?:(^|>)(next[ _]page|Nächste Seite|la page suivante|следующей страницы)(<|$)|(^|>\s*)(next|nächste|Suivant|Следующая)(\s*<|$|( |&nbsp;)?(?:→|›|▸|»|›|&(gt|#62|#x3e);)|1?\.(?:gif|jpg|png|webp))|^(→|›|▸|»|››| ?(&(gt|#62|#x3e);)+ ?)$|(下|后)一?(?:页|糗事|章|回|頁|张)|^(Next Chapter|Thread Next|Go to next page))/i;
+// 6. endswith "&nbsp;»"
+var nextPattern = /(?:(^|>)(next[ _]page|Nächste Seite|la page suivante|следующей страницы)(<|$)|(^|>\s*)(next|nächste|Suivant|Следующая)(\s*<|$|( |&nbsp;)?(?:→|›|▸|»|›|&(gt|#62|#x3e);)|1?\.(?:gif|jpg|png|webp))|^(→|›|▸|»|››| ?(&(gt|#62|#x3e);)+ ?)$|(下|后)一?(?:页|糗事|章|回|頁|张)|^(Next Chapter|Thread Next|Go to next page)|&nbsp;»[ \t\n]*$)/i;
 
 var goodMatch = [
     "next", "Next", "next page", "next_page",
@@ -21,6 +22,8 @@ var goodMatch = [
     "next.gif", "next1.png", "next.webp",
 
     "››", "&gt;", " &gt;&gt; ", "»", "›", "→", "&#62;", "&#x3e;",
+    "&nbsp;»", "URL-based access control\n              &nbsp;»",
+    "URL-based access control\n              &nbsp;»\n            ",
 
     "下一页", "下页", "下一章",
     "Thread Next",
