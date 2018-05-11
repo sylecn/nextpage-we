@@ -914,6 +914,20 @@
      * @return false otherwise.
      */
     let isAtBottom = function () {
+        /**
+         * return document height, in the context of nextpage.
+         * it should return the main content's heigth for a multi-column site.
+         */
+        const getDocumentHeight = function () {
+            // read the docs hack. two column layout. I need the main
+            // content's height.
+            const readTheDocsContent = document.getElementsByClassName("wy-nav-content-wrap");
+            if (readTheDocsContent.length > 0) {
+                return readTheDocsContent[0].offsetHeight;
+            }
+            return document.body.offsetHeight;
+        };
+
         // this bad site doesn't have a correct html markup, firefox can't
         // return the right document height, so I want SPC to just scroll
         // up.
@@ -927,7 +941,7 @@
             return window.scrollMaxY <= window.scrollY;
         } else {
             // 10px is used as float point comparison delta
-            return window.innerHeight + window.scrollY + 10 >= document.body.offsetHeight;
+            return window.innerHeight + window.scrollY + 10 >= getDocumentHeight();
         }
     };
 
