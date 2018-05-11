@@ -227,6 +227,32 @@
         },
 
         /**
+         * describe wheel event in emacs notation. return a string.
+         * example: <wheel-down>, <C-wheel-down>
+         *
+         * Since emacs doesn't support wheel events, I made up wheel-up,
+         * wheel-down names.
+         */
+        describeWheelEventInEmacsNotation: function (e) {
+            let direction = "";
+            if (e.deltaY < 0) {
+                direction = "-up";
+            } else if (e.deltaY > 0) {
+                direction = "-down";
+            } else if (e.deltaX < 0) {
+                direction = "-left";
+            } else if (e.deltaX > 0) {
+                direction = "-right";
+            }
+            const wheel = "wheel" + direction;
+            const ctrl = e.ctrlKey ? "C-": "";
+            const meta = (e.altKey || e.metaKey) ? "M-": "";
+            const shift = e.shiftKey ? "S-": "";
+            const re = '<' + ctrl + meta + shift + wheel + '>';
+            return re;
+        },
+
+        /**
          * describe key pressed in emacs notation. return a string.
          * examples: n, N, C-a, M-n, SPC, DEL, <f2>, <insert>, C-M-n
          * <C-backspace>, <C-S-f7>, C-M-*, M-S-RET, <backspace>, <C-M-S-return>
@@ -1040,6 +1066,23 @@
         var key = utils.describeMouseEventInEmacsNotation(e);
         if (debugKeyEvents()) {
             log("mouseclick: " + key);
+        }
+        if (skipWebsite(e)) {
+            return;
+        }
+        if (shouldIgnoreKey(key)) {
+            return;
+        }
+        let command = getBindings()[key];
+        if (typeof(command) !== "undefined") {
+            runUserCommand(command);
+        }
+    });
+
+    document.addEventListener("wheel", function (e) {
+        var key = utils.describeWheelEventInEmacsNotation(e);
+        if (debugKeyEvents()) {
+            log("wheel event: " + key);
         }
         if (skipWebsite(e)) {
             return;
