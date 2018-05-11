@@ -1,6 +1,6 @@
 * COMMENT -*- mode: org -*-
 #+Date: 2017-02-24
-Time-stamp: <2018-04-30>
+Time-stamp: <2018-05-11>
 
 * Rewrite nextpage add-on using WebExtensions
 
@@ -72,6 +72,8 @@ Common options | Elasticsearch Reference [6.2] | Elastic
 https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html
 PostgreSQL: Documentation: 9.6: Constraints
 https://www.postgresql.org/docs/9.6/static/ddl-constraints.html
+Serving an API — servant documentation
+http://haskell-servant.readthedocs.io/en/stable/tutorial/Server.html
 
 ** add-on distribution agreement
 Firefox Add-on Distribution Agreement - Mozilla | MDN

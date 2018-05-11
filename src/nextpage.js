@@ -919,13 +919,7 @@
          * it should return the main content's heigth for a multi-column site.
          */
         const getDocumentHeight = function () {
-            // read the docs hack. two column layout. I need the main
-            // content's height.
-            const readTheDocsContent = document.getElementsByClassName("wy-nav-content-wrap");
-            if (readTheDocsContent.length > 0) {
-                return readTheDocsContent[0].offsetHeight;
-            }
-            return document.body.offsetHeight;
+            return document.documentElement.scrollHeight;
         };
 
         // this bad site doesn't have a correct html markup, firefox can't
@@ -937,9 +931,9 @@
             return false;
         }
 
-        if (typeof(window.scrollMaxY) !== 'undefined') {
+        if (typeof(window.scrollMaxY) !== 'undefined') {    // firefox
             return window.scrollMaxY <= window.scrollY;
-        } else {
+        } else {    // chrome
             // 10px is used as float point comparison delta
             return window.innerHeight + window.scrollY + 10 >= getDocumentHeight();
         }
