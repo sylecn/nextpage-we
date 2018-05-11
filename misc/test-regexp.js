@@ -69,6 +69,33 @@ badMatch.forEach(function (v) {
     }
 });
 
+(function () {
+    /**
+     * return True if href is link to top level index page or same level index
+     * page.
+     */
+    let hrefIsLinkToIndexPage = function (href) {
+        return (href.match(/^(\/?|\.\/)index\....l?$/i) || href.match(/^\/$/i));
+    };
+
+    const goodMatch = ["/",
+                       "/index.html", "/index.htm", "/index.php",
+                       "index.html", "index.htm", "index.php",
+                       "./index.html", "./index.htm", "./index.php"];
+    const badMatch = ["/tutorial/index.html"];
+    goodMatch.forEach(function (v) {
+        if (! hrefIsLinkToIndexPage(v)) {
+	    log("should catch: " + v);
+        }
+    });
+
+    badMatch.forEach(function (v) {
+        if (hrefIsLinkToIndexPage(v)) {
+	    log("should not catch: " + v);
+        }
+    });
+})();
+
 if (msgs.length === 0) {
     log("all pass.");
 } else {

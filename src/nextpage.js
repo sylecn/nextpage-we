@@ -837,6 +837,14 @@
     };
 
     /**
+     * return True if href is link to top level index page or same level index
+     * page.
+     */
+    let hrefIsLinkToIndexPage = function (href) {
+        return (href.match(/^(\/?|\.\/)index\....l?$/i) || href.match(/^\/$/i));
+    };
+
+    /**
      * if there is a next page, goto next page. otherwise, print an info on
      * console.
      */
@@ -870,7 +878,10 @@
                     log("will follow link.href if it's good");
                 }
                 // FIX Issue 4: don't follow a link to index.html
-                if (nextpageLink.href.match(/index\....l?$/i)) {
+                if (hrefIsLinkToIndexPage(nextpageLink.href)) {
+                    if (debugGotoNextPage()) {
+                        log("not following link to index page");
+                    }
                     return false;
                 }
                 nextpageLink.click();
