@@ -31,6 +31,8 @@ var goodMatch = [
     "Next Chapter &gt;",
     "Go to next page",
 
+    "\n        下一页\n      ",
+
     "...<span style=\"display: block; margin-left: 53px; text-decoration: underline;\">  Next  </span>", // google search
     "Next Page<img src=\"/images/arrows/arrows-66.gif\" alt=\"arrow\" border=\"0\" height=\"13\" hspace=\"2\" vspace=\"0\" width=\"12\" align=\"baseline\">",
     "下一页&nbsp;»",  //verycd

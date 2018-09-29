@@ -345,10 +345,9 @@
 
         // convert anchor (link) object to string
         linkToString: function (l) {
-            let re, prop;
-            re = "link = {\n";
-            prop = ["rel", "accessKey", "title", "href", "onclick",
-                    "innerHTML", "id", "name"];
+            let re = "link = {\n";
+            let prop = ["rel", "accessKey", "title", "href", "onclick",
+                        "innerHTML", "id", "name"];
             for (let i = 0; i < prop.length; i++) {
                 if (l.hasAttribute(prop[i])) {
                     re += prop[i] + ": " + l.getAttribute(prop[i]) + ",\n";
@@ -642,31 +641,32 @@
     };
 
     /**
+     * @param b a <button> object
+     * @return true if this button is link to next page
+     * @return false otherwise
+     */
+    let isNextPageHTML5Button = function (b) {
+        return ((matchesNext(b.innerHTML)) ||
+                (b.getAttribute("accesskey") === 'n') ||
+                (b.hasAttribute("title")) &&
+                 matchesNext(b.getAttribute("title")));
+    };
+
+    /**
      * @param l an INPUT type="button" object
      * @return true if this button is link to next page
      * @return false otherwise
      */
-    let isNextPageButton = function (l) {
-        // check value
-        if (matchesNext(l.getAttribute("value"))) {
-            return true;
-        }
-
-        // check title
-        if (l.hasAttribute("title")) {
-            if (matchesNext(l.getAttribute("title"))) {
-                return true;
-            }
-        }
-
-        // check accesskey
-        if (l.getAttribute("accesskey") === 'n') {
+    let isNextPageInputTypeButton = function (l) {
+        return (
+            // check value
+            matchesNext(l.getAttribute("value")) ||
+            // check title
+            (l.hasAttribute("title") && matchesNext(l.getAttribute("title"))) ||
+            // check accesskey.
             // some well written html already use accesskey n to go to
             // next page, in firefox you could just use Alt-Shift-n.
-            return true;
-        }
-
-        return false;
+            (l.getAttribute("accesskey") === 'n'));
     };
 
     /**
@@ -776,7 +776,15 @@
         // check <input type="button" ...>
         nodes = document.getElementsByTagName('input');
         for (j = 0; j < nodes.length; j++) {
-            if (isNextPageButton(nodes[j])) {
+            if (isNextPageInputTypeButton(nodes[j])) {
+                return nodes[j];
+            }
+        }
+
+        // check <button ...>
+        nodes = document.getElementsByTagName('button');
+        for (j = 0; j < nodes.length; j++) {
+            if (isNextPageHTML5Button(nodes[j])) {
                 return nodes[j];
             }
         }
@@ -857,7 +865,8 @@
             if (debugGotoNextPage()) {
                 log("got nextpage link:\n" + utils.linkToString(nextpageLink));
             }
-            if (nextpageLink.hasAttribute("onclick")) {
+            if (nextpageLink.tagName.toUpperCase() === "BUTTON" ||
+                nextpageLink.hasAttribute("onclick")) {
                 if (debugGotoNextPage()) {
                     log("will click the element");
                 }
@@ -1075,7 +1084,7 @@
         if (typeof(command) !== "undefined") {
             runUserCommand(command);
         } else {
-            if (debugging) {
+            if (debugging()) {
                 log("no associated function with this key");
             }
         }
