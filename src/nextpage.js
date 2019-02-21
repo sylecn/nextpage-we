@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
 // Yuanle Song <sylecn@gmail.com>
 //
 // The JavaScript code in this page is free software: you can
@@ -708,24 +708,20 @@
           note: on some generated document (such as this one:
           http://www.netlib.org/lapack/lug/node5.html), there are two LINK tag with
           rel "next". I don't know what that means. it's probably a broken page.
-          As a result, LINK tag support is removed for now.
+          I will use the last <link rel="next" ...> if more than one exists.
         */
-        // var tagNameToCheck = ["LINK", "A"];
-
-        // check last none-text node in <head>
-        var head = document.getElementsByTagName('head');
-        if (head) {
-            var lastElement = head[0].lastElementChild;
-            if (lastElement &&
-                (lastElement.tagName.toUpperCase() === "LINK") &&
-                lastElement.hasAttribute('rel') &&
-                (lastElement.getAttribute('rel').toLowerCase() === "next")) {
-                // find a next page link
-                if (debugging()) {
-                    log("found <LINK rel=\"next\"> href=" + lastElement.href);
-                }
-                return lastElement;
+        // check last <link rel="next" ...> node in <head>
+        let link = document.head.querySelectorAll('link[rel="next"]');
+        if (link.length > 1) {
+            if (debugging()) {
+                log("use the last <LINK rel=\"next\"> href=" + link.href);
             }
+            return link[link.length - 1];
+        } else if (link.length === 1) {
+            if (debugging()) {
+                log("found <LINK rel=\"next\"> href=" + link.href);
+            }
+            return link[0];
         }
 
         /**
