@@ -1,6 +1,6 @@
 * COMMENT -*- mode: org -*-
 #+Date: 2017-02-24
-Time-stamp: <2019-02-21>
+Time-stamp: <2019-03-02>
 
 * Rewrite nextpage add-on using WebExtensions
 
@@ -8,6 +8,15 @@ Time-stamp: <2019-02-21>
 Icon made by Freepik from www.flaticon.com
 
 * notes								      :entry:
+** how to install the extension
+For firefox,
+https://addons.mozilla.org/en-US/firefox/addon/nextpage/
+
+For chrome,
+https://chrome.google.com/webstore/detail/nextpage/njgkgdihapikidfkbodalicplflciggb?hl=en
+
+You can also search "nextpage" in firefox/chrome add-on/extension site.
+
 ** WebExtensions documents
 Browser Extensions - Mozilla | MDN
 https://developer.mozilla.org/en-US/Add-ons/WebExtensions
