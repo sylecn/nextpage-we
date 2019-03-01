@@ -345,7 +345,7 @@
 
         // convert anchor (link) object to string
         linkToString: function (l) {
-            let re = "link = {\n";
+            let re = "link = <" + l.tagName + "> {\n";
             let prop = ["rel", "accessKey", "title", "href", "onclick",
                         "innerHTML", "id", "name"];
             for (let i = 0; i < prop.length; i++) {
@@ -369,6 +369,12 @@
      * hook function should return false if no link is found, otherwise,
      * it should return the link object.
      */
+
+    // ADD new preGeneric and postGeneric handler here
+
+    let getLinkForDockerHub = function (url, doc) {
+        return doc.querySelector('div[class~="dpagination"] li[class*="styles__nextPage"]');
+    };
 
     // ninenines hosts doc for a few erlang libraries.
     // example url:
@@ -682,6 +688,7 @@
          * special case for some website, pre-generic
          */
         var preGeneric = [
+            [/https:\/\/hub.docker.com\//i, getLinkForDockerHub],
             [/https:\/\/ninenines.eu\/docs\//i, getLinkForNinenines],
             [/\/((thread|forum)-|(viewthread|forumdisplay)\.php)/i, getLinkForDiscuz],
             [/^http:\/\/osdir\.com\/ml\//i, getLinkForOsdirML],
@@ -862,7 +869,8 @@
                 log("got nextpage link:\n" + utils.linkToString(nextpageLink));
             }
             if (nextpageLink.tagName.toUpperCase() === "BUTTON" ||
-                nextpageLink.hasAttribute("onclick")) {
+                nextpageLink.hasAttribute("onclick") ||
+                nextpageLink.click) {
                 if (debugGotoNextPage()) {
                     log("will click the element");
                 }
@@ -901,7 +909,7 @@
                     }, 200);
                 }
             }
-            // if there is a chance to return anything.
+            // return true if we have not redirected to a new page.
             return true;
         } else {
             // TODO show a nice auto timeout message at the bottom of the
