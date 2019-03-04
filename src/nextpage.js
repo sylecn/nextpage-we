@@ -868,9 +868,10 @@
             if (debugGotoNextPage()) {
                 log("got nextpage link:\n" + utils.linkToString(nextpageLink));
             }
-            if (nextpageLink.tagName.toUpperCase() === "BUTTON" ||
-                nextpageLink.hasAttribute("onclick") ||
-                nextpageLink.click) {
+            if (isVisible(nextpageLink) &&
+                ((nextpageLink.tagName.toUpperCase() === "BUTTON" ||
+                  nextpageLink.hasAttribute("onclick") ||
+                  nextpageLink.click))) {
                 if (debugGotoNextPage()) {
                     log("will click the element");
                 }
