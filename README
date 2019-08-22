@@ -1,6 +1,6 @@
 * COMMENT -*- mode: org -*-
 #+Date: 2017-02-24
-Time-stamp: <2019-03-07>
+Time-stamp: <2019-08-22>
 
 * Rewrite nextpage add-on using WebExtensions
 
@@ -148,6 +148,39 @@ webextensions-examples/background-script.js at master · mdn/webextensions-examp
 https://github.com/mdn/webextensions-examples/blob/master/notify-link-clicks-i18n/background-script.js
 
 * done								      :entry:
+** 2019-08-22 keypress event to keydown event. fix issue #41.
+- problems
+  - press C-i will trigger two events. one for ctrl, one for C-i.
+    I should ignore pure modifier key events.
+    I don't plan to support key chain.
+  - I can capture some built-in hotkey after switching to keydown event.
+    in chrome, C-o, C-h, C-c all send to my extension. C-n is not sent.
+
+    can I block default behavior by returning false?
+  - TODO bug in firefox. press p will go previous page, then immediately go next page.
+
+    reproduce:
+
+    open debian install manual. https://www.debian.org/releases/stable/amd64/
+    press n
+    press p
+    expect see previous page, but see previous page, then immediately see next
+    page.
+
+    No problem in chrome.
+
+    it's because nextpageLink.click(); send a <mouse-1> click.
+    my ext got that click event. but there is no binding for this key.
+
+    - open debian install manual.
+      press n
+      press toolbar back button. has the same issue.
+      looks like a bug of firefox.
+
+      only debian install manual have the problem? not all page have this
+      problem. ignore this bug for now.
+  - 
+
 ** 2018-04-06 svg icon not supported by chrome webstore.
 can't install.
 
