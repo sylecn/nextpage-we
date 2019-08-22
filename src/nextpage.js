@@ -385,79 +385,160 @@
          * describe key pressed in emacs notation. return a string.
          * examples: n, N, C-a, M-n, SPC, DEL, <f2>, <insert>, C-M-n
          * <C-backspace>, <C-S-f7>, C-M-*, M-S-RET, <backspace>, <C-M-S-return>
+         * C-., C-<, *, <kp-2>
          * @param e a KeyEvent
          * @return a string that describes which key was pressed.
          */
         describeKeyInEmacsNotation: function (e) {
             if (debugKeyEvents()) {
-                log("keyCode=" + e.keyCode);
+                log("keyCode=" + e.keyCode + ", key=" + e.key);
             }
+
             /**
-             * convert keyCode to emacs key name. ignore modifier keys.  only
+             * convert keyCode to emacs key name. ignore modifier keys. only
              * convert the keys that doesn't require bracket in emacs
-             * notation.
+             * notation, most commonly printable characters.
+             *
+             * Return:
+             *   [keyName, consumeShift?] if this keyCode doesn't require bracket.
+             *   null otherwise.
              */
-            var getNameForKeyCodeNoBracket = function (keyCode) {
-                if ((keyCode >= KeyEvent.DOM_VK_A && keyCode <= KeyEvent.DOM_VK_Z)
-                    || (keyCode >= KeyEvent.DOM_VK_0 && keyCode <= KeyEvent.DOM_VK_9)) {
-                    return String.fromCharCode(keyCode).toLowerCase();
+            var getNameForKeyCodeNoBracket = function (e) {
+                // try get keyName while consuming shift key.
+                // if get keyName okay, return keyName, otherwise, return null.
+                let getKeyNameConsumeShift = function (e) {
+                    let keyCode = e.keyCode;
+
+                    if (keyCode >= KeyEvent.DOM_VK_0 &&
+                        keyCode <= KeyEvent.DOM_VK_9) {
+                        return e.key;
+                    }
+                    switch (keyCode) {
+                    case KeyEvent.DOM_VK_BACK_QUOTE: return "~";
+                        // special handling for - key in main keyboard area.
+                    case 173: return e.key;
+                    case 189: return e.key;
+                    case KeyEvent.DOM_VK_EQUALS: return "+";
+                    case KeyEvent.DOM_VK_OPEN_BRACKET: return "{";
+                    case KeyEvent.DOM_VK_CLOSE_BRACKET: return "}";
+                    case KeyEvent.DOM_VK_BACK_SLASH: return "|";
+                    case KeyEvent.DOM_VK_SEMICOLON: return ":";
+                    case KeyEvent.DOM_VK_QUOTE: return "\"";
+                    case KeyEvent.DOM_VK_COMMA: return "<";
+                    case KeyEvent.DOM_VK_PERIOD: return ">";
+                    case KeyEvent.DOM_VK_SLASH: return "?";
+                    default: return null;
+                    }
+                };
+
+                // try get keyName when shift key is not pressed.
+                let getKeyNameNoShift = function (e) {
+                    let keyCode = e.keyCode;
+                    if ((keyCode >= KeyEvent.DOM_VK_A && keyCode <= KeyEvent.DOM_VK_Z)
+                        || (keyCode >= KeyEvent.DOM_VK_0 && keyCode <= KeyEvent.DOM_VK_9)) {
+                        return String.fromCharCode(keyCode).toLowerCase();
+                    }
+                    switch (keyCode) {
+                    case KeyEvent.DOM_VK_SPACE: return "SPC";
+                    case KeyEvent.DOM_VK_SEMICOLON: return ";";
+                    case KeyEvent.DOM_VK_EQUALS: return "=";
+                    case KeyEvent.DOM_VK_COMMA: return ",";
+                    case KeyEvent.DOM_VK_PERIOD: return ".";
+                    case KeyEvent.DOM_VK_SLASH: return "/";
+                    case KeyEvent.DOM_VK_BACK_QUOTE: return "`";
+                    case KeyEvent.DOM_VK_OPEN_BRACKET: return "[";
+                    case KeyEvent.DOM_VK_BACK_SLASH: return "\\";
+                    case KeyEvent.DOM_VK_CLOSE_BRACKET: return "]";
+                    case KeyEvent.DOM_VK_QUOTE: return "'";
+
+                    default: return null;
+                    }
+                };
+
+                if (e.shiftKey) {
+                    let keyName = getKeyNameConsumeShift(e);
+                    if (keyName !== null) {
+                        return [keyName, true];
+                    }
                 }
-                if (keyCode === KeyEvent.DOM_VK_SPACE) {
-                    return "SPC";
+                // even if shiftKey is pressed, it may not be consumed, such
+                // as C-S-y.
+                let keyName = getKeyNameNoShift(e);
+                if (keyName !== null) {
+                    return [keyName, false];
                 }
                 return null;
             };
             /**
              * convert keyCode to emacs key name. ignore modifier
-             * keys. convert the keys that requires bracket in emacs notation.
+             * keys. convert the keys that requires bracket in emacs
+             * notation. most commonly function keys and control keys.
              */
             var getNameForKeyCodeBracket = function (keyCode) {
                 switch (keyCode) {
                 case KeyEvent.DOM_VK_TAB: return "tab";
 
-                case KeyEvent.DOM_VK_INSERT : return "insert";
-                case KeyEvent.DOM_VK_DELETE : return "delete";
-                case KeyEvent.DOM_VK_HOME : return "home";
-                case KeyEvent.DOM_VK_END : return "end";
-                case KeyEvent.DOM_VK_PAGE_UP : return "prior";
-                case KeyEvent.DOM_VK_PAGE_DOWN : return "next";
+                case KeyEvent.DOM_VK_INSERT: return "insert";
+                case KeyEvent.DOM_VK_DELETE: return "delete";
+                case KeyEvent.DOM_VK_HOME: return "home";
+                case KeyEvent.DOM_VK_END: return "end";
+                case KeyEvent.DOM_VK_PAGE_UP: return "prior";
+                case KeyEvent.DOM_VK_PAGE_DOWN: return "next";
 
-                case KeyEvent.DOM_VK_BACK_SPACE : return "backspace";
+                case KeyEvent.DOM_VK_BACK_SPACE: return "backspace";
                 case KeyEvent.DOM_VK_ESCAPE: return "escape";
 
-                case KeyEvent.DOM_VK_F1 : return "f1";
-                case KeyEvent.DOM_VK_F2 : return "f2";
-                case KeyEvent.DOM_VK_F3 : return "f3";
-                case KeyEvent.DOM_VK_F4 : return "f4";
-                case KeyEvent.DOM_VK_F5 : return "f5";
-                case KeyEvent.DOM_VK_F6 : return "f6";
-                case KeyEvent.DOM_VK_F7 : return "f7";
-                case KeyEvent.DOM_VK_F8 : return "f8";
-                case KeyEvent.DOM_VK_F9 : return "f9";
-                case KeyEvent.DOM_VK_F10 : return "f10";
-                case KeyEvent.DOM_VK_F11 : return "f11";
-                case KeyEvent.DOM_VK_F12 : return "f12";
+                case KeyEvent.DOM_VK_LEFT: return "left";
+                case KeyEvent.DOM_VK_UP: return "up";
+                case KeyEvent.DOM_VK_RIGHT: return "right";
+                case KeyEvent.DOM_VK_DOWN: return "down";
 
-                case KeyEvent.DOM_VK_LEFT : return "left";
-                case KeyEvent.DOM_VK_UP : return "up";
-                case KeyEvent.DOM_VK_RIGHT : return "right";
-                case KeyEvent.DOM_VK_DOWN : return "down";
+                case KeyEvent.DOM_VK_RETURN: return "RET";
+                case KeyEvent.DOM_VK_CONTEXT_MENU: return "menu";
+                case KeyEvent.DOM_VK_MULTIPLY: return "kp-multiply";
+                case KeyEvent.DOM_VK_ADD: return "kp-add";
+                case KeyEvent.DOM_VK_SUBTRACT: return "kp-subtract";
+                case KeyEvent.DOM_VK_DECIMAL: return "kp-decimal";
+                case KeyEvent.DOM_VK_DIVIDE: return "kp-divide";
 
-                case KeyEvent.DOM_VK_RETURN : return "RET";
+                case KeyEvent.DOM_VK_F1: return "f1";
+                case KeyEvent.DOM_VK_F2: return "f2";
+                case KeyEvent.DOM_VK_F3: return "f3";
+                case KeyEvent.DOM_VK_F4: return "f4";
+                case KeyEvent.DOM_VK_F5: return "f5";
+                case KeyEvent.DOM_VK_F6: return "f6";
+                case KeyEvent.DOM_VK_F7: return "f7";
+                case KeyEvent.DOM_VK_F8: return "f8";
+                case KeyEvent.DOM_VK_F9: return "f9";
+                case KeyEvent.DOM_VK_F10: return "f10";
+                case KeyEvent.DOM_VK_F11: return "f11";
+                case KeyEvent.DOM_VK_F12: return "f12";
 
-                default: return "KEYCODE" + keyCode;
+                default:
+                    if (keyCode >= KeyEvent.DOM_VK_NUMPAD0 &&
+                        keyCode <= KeyEvent.DOM_VK_NUMPAD9) {
+                        return "kp-" + (keyCode - KeyEvent.DOM_VK_NUMPAD0);
+                    } else {
+                        return "KEYCODE" + keyCode;
+                    }
                 }
             };
 
             var noWrap = true;    // whether to wrap key with <>
-            var keyName = getNameForKeyCodeNoBracket(e.keyCode);
-            if (keyName === null) {
+            var shiftIsConsumed = false;    // whether shift key is consumed
+                                            // in keyName.
+            var keyName = "";
+            var r = getNameForKeyCodeNoBracket(e);
+            if (r === null) {
                 noWrap = false;
                 keyName = getNameForKeyCodeBracket(e.keyCode);
+            } else {
+                keyName = r[0];
+                shiftIsConsumed = r[1];
             }
             var ctrl = e.ctrlKey ? "C-": "";
             var meta = (e.altKey || e.metaKey) ? "M-": "";
-            var shift = e.shiftKey ? "S-": "";
+            var shift = e.shiftKey && (! shiftIsConsumed) ? "S-": "";
             var re = ctrl + meta + shift + keyName;
             if (! noWrap) {
                 re = '<' + re + '>';

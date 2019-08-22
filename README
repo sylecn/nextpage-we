@@ -148,6 +148,27 @@ webextensions-examples/background-script.js at master · mdn/webextensions-examp
 https://github.com/mdn/webextensions-examples/blob/master/notify-link-clicks-i18n/background-script.js
 
 * done								      :entry:
+** 2019-08-22 describeKeyInEmacsNotation() is not reliable.
+"C-S-," should be C-< in emacs notation.
+keyCode is S-KEYCODE188
+all symbols that requires shift key to press have this problem.
+"*", not S-8
+
+- DONE support (bind "C-." 'nextpage)
+- DONE support (bind "C-S-b" 'nextpage)
+- DONE support (bind "C-(" 'nextpage)
+               (bind "C-<" 'nextpage)
+- DONE support (bind "*" 'nextpage)
+
+  "-" key is 173 in firefox 68.0.2.
+  "-" key is 189 in chrome 76.0.x.
+
+  e.key will be '-' in both browser.
+
+  use e.key can't support <kp-2> keys, because browser just return "2". so I
+  continue to use keyCode to support more keys.
+- 
+
 ** 2019-08-22 keypress event to keydown event. fix issue #41.
 - problems
   - press C-i will trigger two events. one for ctrl, one for C-i.
@@ -179,6 +200,8 @@ https://github.com/mdn/webextensions-examples/blob/master/notify-link-clicks-i18
 
       only debian install manual have the problem? not all page have this
       problem. ignore this bug for now.
+
+    - firefox 68 doesn't have the problem. maybe it's firefox profile issue.
   - 
 
 ** 2018-04-06 svg icon not supported by chrome webstore.
