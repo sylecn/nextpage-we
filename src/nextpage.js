@@ -409,6 +409,11 @@
                 let getKeyNameConsumeShift = function (e) {
                     let keyCode = e.keyCode;
 
+                    if (keyCode >= KeyEvent.DOM_VK_A &&
+                        keyCode <= KeyEvent.DOM_VK_Z) {
+                        return e.ctrlKey ? e.key.toLowerCase() : e.key;
+                    }
+
                     if (keyCode >= KeyEvent.DOM_VK_0 &&
                         keyCode <= KeyEvent.DOM_VK_9) {
                         return e.key;
