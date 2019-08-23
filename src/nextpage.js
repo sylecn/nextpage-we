@@ -284,6 +284,30 @@
 
     let utils = {
         /**
+         * given a page url, return page number as a number if it is
+         * found. return null if page can't be found in given URL or its value
+         * is not a number.
+         *
+         * supported URL format:
+         *     ?page=N (query string)
+         */
+        parsePageFromURL: function (pageURL) {
+            var pagePattern = /[?&]page=([^&]+)/;
+            var mo = pagePattern.exec(pageURL);
+            var result;
+            if (mo) {
+                result = parseInt(mo[1]);
+                if (isNaN(result)) {
+                    return null;
+                } else {
+                    return result;
+                }
+            } else {
+                return null;
+            }
+        },
+
+        /**
          * copy given text to clipboard. requires firefox 22, chrome 58.
          */
         copyToClipboard: function (text) {
@@ -744,13 +768,26 @@
         // str could be space only
         if (! str) return false;
 
-        // to add more languages, load
-        // /home/sylecn/projects/firefox/nextpage/make-regexp.el
-        // M-x insert-nextpage-regexp
-
         // TODO make this regexp configurable
         var nextPattern = /(?:(^|>)(next[ _]page|Nächste Seite|la page suivante|следующей страницы)(<|$)|(^|>\s*)(next|nächste|Suivant|Следующая)(\s*<|$|( |&nbsp;|\u00A0)?(?:→|›|▸|»|›|>>|&(gt|#62|#x3e);)|1?\.(?:gif|jpg|png|webp))|^(→|›|▸|»|››| ?(&(gt|#62|#x3e);)+ ?)$|(下|后)一?(?:页|糗事|章|回|頁|张)|^(Next Chapter|Thread Next|Go to next page)|&nbsp;»[ \t\n]*$)/i;
         return nextPattern.test(str) || nextPattern.test(str.slice(1, -1));
+    };
+
+    /**
+     * @return true if given string matches one of the words that's
+     * equivalent to 'previous'.
+     * @return false otherwise.
+     */
+    let matchesPrevious = function (str) {
+        // str could be null
+        if (! str) return false;
+        str = str.trim();
+        // str could be space only
+        if (! str) return false;
+
+        // TODO make this regexp configurable
+        var previousPattern = /(?:(^|>)(previous[ _]page|Vorherige Seite)(<|$)|(^|>\s*)(prev(ious)?|vorherige|Précédent)(\s*<|$|( |&nbsp;|\u00A0)?(?:←|‹|◂|«|‹|<<|&(lt|#60|#x3c);)|1?\.(?:gif|jpg|png|webp))|^(←|‹|◂|«|‹‹| ?(&(lt|#60|#x3c);)+ ?)$|(上|前)一?(?:页|糗事|章|回|頁|张)|^(Previous Chapter|Thread Previous|Go to previous page)|&nbsp;«[ \t\n]*$)/i;
+        return previousPattern.test(str) || previousPattern.test(str.slice(1, -1));
     };
 
     /**
@@ -801,18 +838,22 @@
     };
 
     /**
+     * check link with matchFunc.
+     *
      * @param l an anchor object
-     * @return true if this anchor is link to next page
-     * @return false otherwise
+     * @param matchFunc the checker function. matchFunc signature:
+     *        matchFunc(string) -> boolean.
+     * @param accessKey single char string, return true if link has this
+     *        accessKey.
+     *
+     * @return true if link has text that matches according to matchFunc or
+     * has given accessKey. false otherwise.
      */
-    let isNextPageLink = function (l) {
-        var imgMaybe;
-        var spanMaybe;
-
+    let checkLinkWithFunc = function (l, matchFunc, accessKey) {
         /**
          * if debugATag is enabled, log message; otherwise, do nothing.
          */
-        var debugLog = function (msg) {
+        let debugLog = function (msg) {
             if (debugATag()) {
                 log(msg);
             }
@@ -820,7 +861,7 @@
 
         // check rel
         if (l.hasAttribute("rel")) {
-            if (matchesNext(l.getAttribute("rel"))) {
+            if (matchFunc(l.getAttribute("rel"))) {
                 // if rel is used, it's usually the right link. GNU info
                 // html doc is using rel to represent the relation of the
                 // nodes.
@@ -829,7 +870,7 @@
         }
 
         // check accesskey
-        if (l.getAttribute("accesskey") === 'n') {
+        if (l.getAttribute("accesskey") === accessKey) {
             // some well written html already use accesskey n to go to
             // next page, in firefox you could just use Alt-Shift-n.
             return true;
@@ -842,7 +883,7 @@
         }
 
         if (l.hasAttribute("title")) {
-            if (matchesNext(l.getAttribute("title"))) {
+            if (matchFunc(l.getAttribute("title"))) {
                 return true;
             }
         }
@@ -859,28 +900,46 @@
         }
 
         // check innerHTML
-        if (matchesNext(l.innerHTML)) {
+        if (matchFunc(l.innerHTML)) {
             return true;
         }
 
         // check inner <img> tag
-        imgMaybe = l.getElementsByTagName("img");
+        let imgMaybe = l.getElementsByTagName("img");
         if (imgMaybe.length !== 0) {
-            if (matchesNext(imgMaybe[0].getAttribute('alt')) ||
-                matchesNext(imgMaybe[0].getAttribute('name')) ||
-                matchesNext(imgMaybe[0].getAttribute('src'))) {
+            if (matchFunc(imgMaybe[0].getAttribute('alt')) ||
+                matchFunc(imgMaybe[0].getAttribute('name')) ||
+                matchFunc(imgMaybe[0].getAttribute('src'))) {
                 return true;
             }
         }
         // check inner <span> tag
-        spanMaybe = l.getElementsByTagName("span");
+        let spanMaybe = l.getElementsByTagName("span");
         if (spanMaybe.length !== 0) {
-            if (matchesNext(spanMaybe[0].innerHTML))
+            if (matchFunc(spanMaybe[0].innerHTML))
                 return true;
         }
 
-        debugLog("link ignored because no signs of nextpage found: " + l.outerHTML);
+        debugLog("link check failed because neither text nor access key matched: " + l.outerHTML);
         return false;
+    };
+
+    /**
+     * @param l an anchor object
+     * @return true if this anchor is link to previous page
+     * @return false otherwise
+     */
+    let isPreviousPageLink = function (l) {
+        return checkLinkWithFunc(l, matchesPrevious, 'p');
+    };
+
+    /**
+     * @param l an anchor object
+     * @return true if this anchor is link to next page
+     * @return false otherwise
+     */
+    let isNextPageLink = function (l) {
+        return checkLinkWithFunc(l, matchesNext, 'n');
     };
 
     /**
@@ -889,10 +948,10 @@
      * @return false otherwise
      */
     let isNextPageHTML5Button = function (b) {
-        return ((matchesNext(b.innerHTML)) ||
+        return (matchesNext(b.innerHTML) ||
                 (b.getAttribute("accesskey") === 'n') ||
-                (b.hasAttribute("title")) &&
-                 matchesNext(b.getAttribute("title")));
+                (b.hasAttribute("title") &&
+                 matchesNext(b.getAttribute("title"))));
     };
 
     /**
@@ -910,6 +969,35 @@
             // some well written html already use accesskey n to go to
             // next page, in firefox you could just use Alt-Shift-n.
             (l.getAttribute("accesskey") === 'n'));
+    };
+
+    /**
+     * @param b a <button> object
+     * @return true if this button is link to previous page
+     * @return false otherwise
+     */
+    let isPreviousPageHTML5Button = function (b) {
+        return (matchesPrevious(b.innerHTML) ||
+                (b.getAttribute("accesskey") === 'p') ||
+                (b.hasAttribute("title") &&
+                 matchesPrevious(b.getAttribute("title"))));
+    };
+
+    /**
+     * @param l an INPUT type="button" object
+     * @return true if this button is link to previous page
+     * @return false otherwise
+     */
+    let isPreviousPageInputTypeButton = function (l) {
+        return (
+            // check value
+            matchesPrevious(l.getAttribute("value")) ||
+            // check title
+            (l.hasAttribute("title") && matchesPrevious(l.getAttribute("title"))) ||
+            // check accesskey.
+            // some well written html already use accesskey n to go to
+            // previous page, in firefox you could just use Alt-Shift-n.
+            (l.getAttribute("accesskey") === 'p'));
     };
 
     /**
@@ -968,39 +1056,15 @@
             return link[0];
         }
 
-        /**
-         * given a page url, return page number as a number if it is
-         * found. return null if page can't be found in given URL or its value
-         * is not a number.
-         *
-         * supported URL format:
-         *     ?page=N (query string)
-         */
-        var parsePageFromURL = function (pageURL) {
-            var pagePattern = /[?&]page=([^&]+)/;
-            var mo = pagePattern.exec(pageURL);
-            var result;
-            if (mo) {
-                result = parseInt(mo[1]);
-                if (isNaN(result)) {
-                    return null;
-                } else {
-                    return result;
-                }
-            } else {
-                return null;
-            }
-        };
-
         // check <a> links
         var tagNameToCheck = ["a"];
         var pageURL = document.location.href;
-        var currentPage = parsePageFromURL(pageURL);
+        var currentPage = utils.parsePageFromURL(pageURL);
         for (i = 0; i < tagNameToCheck.length; i++) {
             links = document.getElementsByTagName(tagNameToCheck[i]);
             for (j = 0; j < links.length; j++) {
                 if (currentPage) {
-                    if (parsePageFromURL(links[j].href) === currentPage + 1) {
+                    if (utils.parsePageFromURL(links[j].href) === currentPage + 1) {
                         return links[j];
                     }
                 }
@@ -1081,7 +1145,7 @@
         //      }
         // }
 
-        return false;
+        return null;
     };
 
     /**
@@ -1093,8 +1157,71 @@
     };
 
     /**
+     * follow a previous page or next page link. to follow a link, the link
+     * may be clicked or it's href may be used.
+     *
+     * @param link a DOM object, the link to follow.
+     * @param allowRedirectToIndex boolean, allow redirect to index or not
+     *
+     * return true if link is followed. return false otherwise.
+     */
+    let followLink = function (link, allowRedirectToIndex) {
+        if (isVisible(link) &&
+            ((link.tagName.toUpperCase() === "BUTTON" ||
+              link.hasAttribute("onclick") ||
+              link.click))) {
+            if (debugGotoNextPage()) {
+                log("will click the element");
+            }
+            if (link.click) {
+                // buttons has .click() function
+                link.click();
+                return true;
+            } else {
+                // <a> link doesn't have a .click() function
+                var clickEvent = document.createEvent("MouseEvents");
+                clickEvent.initMouseEvent("click", true, true, window,
+                                          0, 0, 0, 0, 0,
+                                          false, false, false, false, 0,
+                                          null);
+                link.dispatchEvent(clickEvent);
+                return true;
+            }
+        } else if (link.hasAttribute("href")) {
+            if (debugGotoNextPage()) {
+                log("will follow link.href if it's good");
+            }
+            if (! allowRedirectToIndex) {
+                // FIX Issue 4: don't follow a link to index.html
+                if (hrefIsLinkToIndexPage(link.href)) {
+                    if (debugGotoNextPage()) {
+                        log("not following link to index page");
+                    }
+                    return false;
+                }
+            }
+            link.click();
+
+            // Chrome v65: .click() doesn't follow link on <LINK> element.
+            if (link.tagName.toUpperCase() === "LINK") {
+                let oldUrl = document.location.href;
+                window.setTimeout(function () {
+                    if (document.location.href === oldUrl) {
+                        document.location.href = link.href;
+                    }
+                }, 200);
+            }
+            return true;
+        }
+        // return false if we have not redirected to a new page.
+        return false;
+    };
+
+    /**
      * if there is a next page, goto next page. otherwise, print an info on
      * console.
+     *
+     * return true if goto nextpage okay. return false otherwise.
      */
     let gotoNextPage = function () {
         if (debugGotoNextPage()) {
@@ -1105,58 +1232,13 @@
             if (debugGotoNextPage()) {
                 log("got nextpage link:\n" + utils.linkToString(nextpageLink));
             }
-            if (isVisible(nextpageLink) &&
-                ((nextpageLink.tagName.toUpperCase() === "BUTTON" ||
-                  nextpageLink.hasAttribute("onclick") ||
-                  nextpageLink.click))) {
-                if (debugGotoNextPage()) {
-                    log("will click the element");
-                }
-                if (nextpageLink.click) {
-                    // buttons has .click() function
-                    nextpageLink.click();
-                    return false;
-                } else {
-                    // <a> link doesn't have a .click() function
-                    var clickEvent = document.createEvent("MouseEvents");
-                    clickEvent.initMouseEvent("click", true, true, window,
-                                              0, 0, 0, 0, 0,
-                                              false, false, false, false, 0,
-                                              null);
-                    nextpageLink.dispatchEvent(clickEvent);
-                    return false;
-                }
-            } else if (nextpageLink.hasAttribute("href")) {
-                if (debugGotoNextPage()) {
-                    log("will follow link.href if it's good");
-                }
-                // FIX Issue 4: don't follow a link to index.html
-                if (hrefIsLinkToIndexPage(nextpageLink.href)) {
-                    if (debugGotoNextPage()) {
-                        log("not following link to index page");
-                    }
-                    return false;
-                }
-                nextpageLink.click();
-
-                // Chrome v65: .click() doesn't follow link on <LINK> element.
-                if (nextpageLink.tagName.toUpperCase() === "LINK") {
-                    let oldUrl = document.location.href;
-                    window.setTimeout(function () {
-                        if (document.location.href === oldUrl) {
-                            document.location.href = nextpageLink.href;
-                        }
-                    }, 200);
-                }
-            }
-            // return true if we have not redirected to a new page.
-            return true;
+            return followLink(nextpageLink, false);
         } else {
             // TODO show a nice auto timeout message at the bottom of the
             // content window. using html and css. use msg in
             // nextpage.strings.getString("msg_no_link_found")
             if (debugging()) {
-                log("No link/button found. will stay at current page.");
+                log("No nextpage link/button found. will stay at current page.");
             }
             return false;
         }
@@ -1202,6 +1284,127 @@
             return gotoNextPage();
         }
         return false;
+    };
+
+    /**
+     * try find previous page link in current document.
+     *
+     * return previous page DOM object if previous page link is found.
+     * return null otherwise.
+     */
+    let getPreviousPageLink = function () {
+        let links;
+        let nodes;
+
+        // check <a> links
+        let tagNameToCheck = ["a"];
+        let pageURL = document.location.href;
+        let currentPage = utils.parsePageFromURL(pageURL);
+        for (let i = 0; i < tagNameToCheck.length; i++) {
+            links = document.getElementsByTagName(tagNameToCheck[i]);
+            for (let j = 0; j < links.length; j++) {
+                if (currentPage) {
+                    if (utils.parsePageFromURL(links[j].href) === currentPage - 1) {
+                        return links[j];
+                    }
+                }
+                if (isPreviousPageLink(links[j])) {
+                    return links[j];
+                }
+                if (debugATag()) {
+                    log("not previous page link: " + links[j].outerHTML);
+                }
+            }
+        }
+
+        // check last <link rel="prev" ...> node in <head>
+        let link = document.head.querySelectorAll('link[rel="prev"]');
+        if (link.length > 1) {
+            if (debugging()) {
+                log("use the last <LINK rel=\"prev\"> href=" + link.href);
+            }
+            return link[link.length - 1];
+        } else if (link.length === 1) {
+            if (debugging()) {
+                log("found <LINK rel=\"prev\"> href=" + link.href);
+            }
+            return link[0];
+        }
+
+        // check <input type="button" ...>
+        nodes = document.getElementsByTagName('input');
+        for (var j = 0; j < nodes.length; j++) {
+            if (isPreviousPageInputTypeButton(nodes[j])) {
+                return nodes[j];
+            }
+        }
+
+        // check <button ...>
+        nodes = document.getElementsByTagName('button');
+        for (let j = 0; j < nodes.length; j++) {
+            if (isPreviousPageHTML5Button(nodes[j])) {
+                return nodes[j];
+            }
+        }
+
+        // check for <a class="foo prev"> <button class="foo prev">
+        // <input type="button" class="foo prev">
+        // accepts both prev and prevControl class.
+        var getPreviousElementByClassName = function (className) {
+            var tagName;
+            var nodes;
+            nodes = document.getElementsByClassName(className);
+            for (var j = 0; j < nodes.length; j++) {
+                tagName = nodes[j].tagName.toUpperCase();
+                if (tagName === "A" ||
+                    tagName === "BUTTON" ||
+                    (tagName === "INPUT" &&
+                     nodes[j].getAttribute("type") === "button")) {
+                    if (debugging()) {
+                        log("found <" + tagName + " class=\"foo " +
+                            className + "\">");
+                    }
+                    return nodes[j];
+                } else if (tagName === "LI") {
+                    if (nodes[j].firstElementChild.tagName === "A") {
+                        return nodes[j].firstElementChild;
+                    }
+                }
+            }
+            return null;
+        };
+        let nextClasses = ['prev', 'prevControl', 'pagePrevious'];
+        for (let k = 0; k < nextClasses.length; k++) {
+            let e = getPreviousElementByClassName(nextClasses[k]);
+            if (e) {
+                return e;
+            }
+        }
+
+        return null;
+    };
+
+    /**
+     * goto previous page if there is a previous page link.
+     * return true if goto previous page okay. return false otherwise.
+     */
+    let gotoPreviousPage = function () {
+        if (debugGotoNextPage()) {
+            log("in gotoPreviousPage()");
+        }
+        let previousPageLink = getPreviousPageLink();
+        if (previousPageLink) {
+            if (debugGotoNextPage()) {
+                log("got previous page link:\n" +
+                    utils.linkToString(previousPageLink));
+            }
+            return followLink(previousPageLink, true);
+        } else {
+            if (debugging()) {
+                log("No previous link/button found. will stay at current page.");
+            }
+            return false;
+        }
     };
 
     /**
@@ -1263,6 +1466,7 @@
         switch (command) {
         case "nextpage-maybe": return gotoNextPageMaybe();
         case "nextpage": return gotoNextPage();
+        case "previous-page": return gotoPreviousPage();
         case "history-back": return historyBack();
         case "close-tab": return closeTab();
         case "copy-title-and-url": return copyTitleAndUrl();

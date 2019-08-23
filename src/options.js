@@ -46,6 +46,7 @@
 
     const VALID_COMMANDS = ["nextpage-maybe",
                             "nextpage",
+                            "previous-page",
                             "history-back",
                             "close-tab",
                             "copy-title-and-url",

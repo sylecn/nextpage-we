@@ -148,6 +148,7 @@ webextensions-examples/background-script.js at master · mdn/webextensions-examp
 https://github.com/mdn/webextensions-examples/blob/master/notify-link-clicks-i18n/background-script.js
 
 * done								      :entry:
+** 2019-08-23 support previous-page command.
 ** 2019-08-23 describeKeyInEmacsNotation bug. shift+p should be "P", not S-p
 just like *.
 

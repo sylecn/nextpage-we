@@ -21,10 +21,11 @@
   <body>
     <h1>Nextpage Add-on Help</h1>
     <h3>Overview</h3>
-    <p>In nextpage v2.0.0, user config is refined to allow users to bind keys to command as they wish. This document describes how to use it.</p>
-    <p>If you have used user config file before v2.0.0, you need to copy your config to the user config area in add-on preferences. The old config file ~/.config/nextpage.lisp is no longer read by nextpage after v2.0.0 when nextpage is rewritten in <a href="https://developer.mozilla.org/en-US/Add-ons/WebExtensions">Web Extension</a>.</p>
+    <p>Nextpage allows you to configure hotkeys and enable/disable features via preferences page. If you sign in your browser, the configuration is synchronized across devices.</p>
+    <h4>Notes to old users (nextpage v1.x)</h4>
+    <p>If you have used user config file before nextpage v2.0, you need to copy your config to the user config area in add-on preferences. The old config file ~/.config/nextpage.lisp is no longer read by nextpage after v2.0 when nextpage is rewritten in <a href="https://developer.mozilla.org/en-US/Add-ons/WebExtensions">Web Extension</a>.</p>
     <h3>About User Config</h3>
-    <p>You may open nextpage add-on options to see the built-in config and user config. The built-in config defines default bindings and is always active. It is shipped with each version of nextpage and you can't edit it. The user config is a property stored in firefox <a href="https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/storage/sync">storage.sync</a>, which is empty by default. The user config could be used to overwrite built-in config. You may remove or modify default bindings defined in built-in config or add new bindings. The user config is synced across firefox if you have logged in firefox.</p>
+    <p>You may open nextpage add-on options to see the built-in config and user config. The built-in config defines default bindings and is always active. It is shipped with each version of nextpage and you can't edit it. The user config is a property stored in <a href="https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/storage/sync">firefox storage.sync</a> or <a href="https://developer.chrome.com/extensions/storage#property-sync">chrome storage.sync</a> depending on your browser. User config is empty by default. User config can be used to overwrite built-in config. You may remove or modify default bindings defined in built-in config or add new bindings. The user config is synchronized across devices if you have signed in firefox/chrome.</p>
 
     <p>After you edit user config, click "Save" button to save it. New config will be effective in new tabs or new document opened in existing tabs.</p>
 
@@ -58,6 +59,7 @@
 </pre>
     <p>Some more user config examples:</p>
     <pre>(ignore-on "https://.*\.example\.com/")
+(bind "P" 'previous-page)
     </pre>
 
     <h4>Bind Command: Keys</h4>
@@ -65,13 +67,16 @@
     <table id="key-table">
       <tr><th>Key Name</th><th>Meaning</th></tr>
       <tr><td class="keyname">a</td><td>key A</td></tr>
+      <tr><td class="keyname">A</td><td>Shift-A</td></tr>
       <tr><td class="keyname">C-a</td><td>Ctrl-A</td></tr>
       <tr><td class="keyname">M-a</td><td>Alt-A</td></tr>
+      <tr><td class="keyname">M-A</td><td>Alt-Shift-A</td></tr>
       <tr><td class="keyname">C-M-a</td><td>Ctrl-Alt-A</td></tr>
       <tr><td class="keyname">SPC</td><td>Space</td></tr>
       <tr><td class="keyname">&lt;f11&gt;</td><td>F11</td></tr>
       <tr><td class="keyname">&lt;C-S-f11&gt;</td><td>Ctrl-Shift-F11</td></tr>
       <tr><td class="keyname">&lt;left&gt;</td><td>Left Arrow</td></tr>
+      <tr><td class="keyname">&lt;right&gt;</td><td>Right Arrow</td></tr>
       <tr><td class="keyname">&lt;mouse-4&gt;</td><td>mouse backward</td></tr>
       <tr><td class="keyname">&lt;mouse-5&gt;</td><td>mouse forward</td></tr>
       <tr><td class="keyname">&lt;wheel-up&gt;</td><td>scroll wheel up</td></tr>
@@ -89,6 +94,7 @@
       <tr><td class="command-name">nextpage-maybe</td><td>scroll up / next page</td></tr>
       <tr><td class="command-name">nextpage</td><td>next page</td></tr>
       <tr><td class="command-name">history-back</td><td>go back one page in history</td></tr>
+      <tr><td class="command-name">previous-page</td><td>previous page</td></tr>
       <tr><td class="command-name">copy-title-and-url-maybe</td><td>copy page title and url to clipboard if no text is being selected</td></tr>
       <tr><td class="command-name">copy-title-and-url</td><td>copy page title and url to clipboard</td></tr>
       <tr><td class="command-name">nil</td><td>do nothing</td></tr>
