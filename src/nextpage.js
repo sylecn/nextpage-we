@@ -633,6 +633,20 @@
 
     // ADD new preGeneric and postGeneric handler here
 
+    /**
+     * the PKU BBS next page link look like this:
+     * <div class="paging-button n"><a class="link" href="?bid=35&amp;threadid=17173713&amp;page=2"></a>下一页 &gt;</div>
+     */
+    let getLinkForPkuBBS = function (url, doc) {
+        let divs = doc.querySelectorAll('div[class~="paging-button"]');
+        for (let div of divs) {
+            if (div.lastChild.textContent === "下一页 >") {
+                return div.firstChild;
+            }
+        }
+        return false;
+    };
+
     let getLinkForDockerHub = function (url, doc) {
         return doc.querySelector('div[class~="dpagination"] li[class*="styles__nextPage"]');
     };
@@ -1013,6 +1027,7 @@
          * special case for some website, pre-generic
          */
         var preGeneric = [
+            [/https:\/\/bbs.pku.edu.cn\//i, getLinkForPkuBBS],
             [/https:\/\/hub.docker.com\//i, getLinkForDockerHub],
             [/https:\/\/ninenines.eu\/docs\//i, getLinkForNinenines],
             [/\/((thread|forum)-|(viewthread|forumdisplay)\.php)/i, getLinkForDiscuz],

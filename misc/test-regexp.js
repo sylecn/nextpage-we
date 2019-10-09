@@ -26,7 +26,7 @@ var goodMatch = [
     "URL-based access control\n              &nbsp;»\n            ",
     "next&nbsp;&gt;&gt;", "next\u00A0>>",
 
-    "下一页", "下页", "下一章",
+    "下一页", "下页", "下一章", "下一页 >",
     "Thread Next",
     "Next Chapter",
     "Next Chapter &gt;",
