@@ -2,3 +2,6 @@ src/manifest.json
 *.zip
 other-assets/
 node_modules/
+build/
+# I know what it does, but I still don't want to commit this file.
+package-lock.json
