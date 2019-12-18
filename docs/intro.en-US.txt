@@ -1,0 +1,41 @@
+When reading online documents or novels, I usually use SPC to scroll page. But SPC doesn't go to next page automatically. This add-on rebinds SPC key so that it scrolls page when there is more on the page, it goes to next page when you are at the bottom of a page. You can also press n key anytime to go to next page directly.
+
+nextpage is <a href="http://www.gnu.org/philosophy/free-sw.html" title="free software ">free software</a> released under GPLv3. The source code is hosted at <a href="http://github.com/sylecn/nextpage-we" title="github">github</a>.
+
+nextpage tries hard to not get in your way. If you find nextpage breaks your blog admin panel, some online registration form, or any kind of cool web application, please report a bug. You can also use (ignore-on "URL_REGEXP") in user config to disable this add-on on given website.
+
+Currently English, Chinese and German web pages are supported.
+
+nextpage allows you to bind keys to some nextpage related functions. Here is the default key-bindings:
+
+<ul>
+<li>SPC scroll up/next page</li>
+<li>n next page</li>
+<li>p history back</li>
+</ul>
+Here is the real code for this default binding:
+<code>
+(bind "SPC" 'nextpage-maybe)
+(bind "n" 'nextpage)
+(bind "p" 'history-back)
+</code>
+You can disable/overwrite built-in bindings and define your own bindings easily. Read the built-in help document with the installed add-on for more information. Click help button in add-on option.
+
+In user preferences page,
+
+You can bind p to previous-page:
+<code>
+(bind "p" 'previous-page)
+</code>
+
+You can bind c to copy page title and url:
+<code>
+(bind "c" 'copy-title-and-url-maybe)
+</code>
+
+This add-on is only 30K zipped.
+
+BUG Report
+===================
+If you found a problem and would like to get it fixed, please report it here:
+https://github.com/sylecn/ff-nextpage/issues
