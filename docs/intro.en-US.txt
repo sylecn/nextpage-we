@@ -21,18 +21,16 @@ Here is the real code for this default binding:
 </code>
 You can disable/overwrite built-in bindings and define your own bindings easily. Read the built-in help document with the installed add-on for more information. Click help button in add-on option.
 
-In user preferences page,
+For example, in user preferences page,
 
 You can bind p to previous-page:
 <code>
 (bind "p" 'previous-page)
 </code>
-
 You can bind c to copy page title and url:
 <code>
 (bind "c" 'copy-title-and-url-maybe)
 </code>
-
 This add-on is only 30K zipped.
 
 BUG Report
