@@ -1,6 +1,6 @@
 * COMMENT -*- mode: org -*-
 #+Date: 2017-02-24
-Time-stamp: <2019-08-23>
+Time-stamp: <2019-12-19>
 
 * Rewrite nextpage add-on using WebExtensions
 
@@ -95,6 +95,8 @@ Firefox Add-on Distribution Agreement - Mozilla | MDN
 https://developer.mozilla.org/en-US/Add-ons/AMO/Policy/Agreement
 Add-on Policies - Mozilla | MDN
 https://developer.mozilla.org/en-US/Add-ons/AMO/Policy/Reviews
+App Developer Agreement | Microsoft Docs
+https://docs.microsoft.com/en-us/legal/windows/agreements/app-developer-agreement
 
 ** distribution URL
 Firefox Developer Hub
@@ -102,6 +104,9 @@ https://addons.mozilla.org/en-US/developers/
 
 Chrome Webstore Developer Dashboard
 https://chrome.google.com/webstore/developer/dashboard
+
+Microsoft Edge
+https://partner.microsoft.com/en-us/dashboard/microsoftedge/overview
 
 ** in user config, how to add new command for user to bind?
 - update config file parser in options.js, namely VALID_COMMANDS
