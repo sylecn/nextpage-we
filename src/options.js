@@ -49,6 +49,7 @@
                             "previous-page",
                             "history-back",
                             "close-tab",
+                            "copy-title",
                             "copy-title-and-url",
                             "copy-title-and-url-maybe",
                             "nil"];

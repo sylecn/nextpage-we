@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2021
 // Yuanle Song <sylecn@gmail.com>
 //
 // The JavaScript code in this page is free software: you can
@@ -1430,6 +1430,13 @@
     };
 
     /**
+     * copy page title to clipboard.
+     */
+    let copyTitle = function () {
+        utils.copyToClipboard(document.title);
+    };
+
+    /**
      * copy page title and url to clipboard.
      */
     let copyTitleAndUrl = function () {
@@ -1485,6 +1492,7 @@
         case "history-back": return historyBack();
         case "close-tab": return closeTab();
         case "copy-title-and-url": return copyTitleAndUrl();
+        case "copy-title": return copyTitle();
         case "copy-title-and-url-maybe": return copyTitleAndUrlMaybe();
         case "nil": break;      //do nothing.
         default:
