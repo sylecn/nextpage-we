@@ -1,6 +1,6 @@
 * COMMENT -*- mode: org -*-
 #+Date: 2017-02-24
-Time-stamp: <2021-04-26>
+Time-stamp: <2021-04-28>
 
 * Rewrite nextpage add-on using WebExtensions
 
@@ -163,6 +163,13 @@ add a right arrow button on url bar, also add menu item.
 see example here:
 webextensions-examples/background-script.js at master · mdn/webextensions-examples
 https://github.com/mdn/webextensions-examples/blob/master/notify-link-clicks-i18n/background-script.js
+** 
+** 2021-04-28 mouse-2 (middle button) bindings won't work in new edge in windows. :bug:
+middle button triggers auto scroll in edge in windows.
+nextpage doesn't get the event.
+
+https://developer.mozilla.org/en-US/docs/Web/API/Element/auxclick_event
+press middle button on the example here doesn't work either.
 
 * done								      :entry:
 ** 2021-04-26 <mouse-4>, <mouse-5>, <wheel-up>, <wheel-down> no longer work. :invalid:
@@ -174,7 +181,83 @@ https://github.com/sylecn/ff-nextpage/issues/48
   enable debug.
   oh. I don't have mouse-5 key. I only have <wheel-down>
   wheel-down works in both chrome and firefox.
-- 
+- 2021-04-26 test whether <mouse-2> (wheel press), <mouse-3> (right click)
+  binding works in windows.
+
+  mouse-2, mouse-3 doesn't work in linux, nor windows.
+  mouse-2 on linux send no event.
+  mouse-2 on windows trigger free 4-way scroll.
+  mouse-3 show context menu on both linux and windows.
+- EventTarget.addEventListener() - Web APIs | MDN
+  https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+  Event reference | MDN
+  https://developer.mozilla.org/en-US/docs/Web/Events
+  MouseEvent - Web APIs | MDN
+  https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
+  Element: auxclick event - Web APIs | MDN
+  https://developer.mozilla.org/en-US/docs/Web/API/Element/auxclick_event
+
+  try listen to auxclick event.
+  test it in both windows (winten01 VM) and linux.
+
+  auxclick works. mouse-2 and mouse-3 event is triggered properly.
+
+- problems
+  - auxclick works. mouse-2 and mouse-3.
+    but when using mouse-3, context menu still shows.
+
+    search: auxclick disable context menu on right click
+
+  - add "return false".
+    nope.
+
+  - Element: contextmenu event - Web APIs | MDN
+    https://developer.mozilla.org/en-US/docs/Web/API/Element/contextmenu_event
+
+    Any right-click event that is not disabled (by calling the event's
+    preventDefault() method) will result in a contextmenu event being fired at
+    the targeted element.
+
+    Element: auxclick event - Web APIs | MDN
+    https://developer.mozilla.org/en-US/docs/Web/API/Element/auxclick_event
+
+    Additionally, you may need to avoid opening a system context menu after a
+    right click. Due to timing differences between operating systems, this too
+    is not a preventable default behavior of auxclick. Instead, this can be
+    done by preventing the default behavior of the contextmenu event.
+
+    MouseEvent.button - Web APIs | MDN
+    https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
+
+    Users may change the configuration of buttons on their pointing device so
+    that if an event's button property is zero, it may not have been caused by
+    the button that is physically left–most on the pointing device; however,
+    it should behave as if the left button was clicked in the standard button
+    layout.
+
+  - works in firefox.
+    in chrome, mouse-2 and mouse-3 event not triggered.
+
+    two nextpage installed.
+    load unpacked extension will not replace the extension installed from webstore.
+
+    try use a chrome profile just for testing this extension.
+    it works.
+
+    in edge, mouse-2 event not triggered.
+    mouse-3 works fine.
+    wheel-down works fine.
+
+    search: middle mouse click doesn't trigger on edge on windows
+
+    Fix Microsoft Edge Mouse Wheel Not Working - Technipages
+    https://www.technipages.com/fix-microsoft-edge-mouse-wheel-not-working
+
+    search: middle mouse click event new edge browser in windows
+    search: capture middle mouse click event in new edge browser
+
+    MOVED mouse-2 (middle button) doesn't work in new edge in windows.
+    I will leave it for now.
 
 ** 2019-08-23 support previous-page command.
 ** 2019-08-23 describeKeyInEmacsNotation bug. shift+p should be "P", not S-p

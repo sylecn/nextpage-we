@@ -1567,26 +1567,44 @@
         }
     });
 
-    document.addEventListener("click", function (e) {
-        var key = utils.describeMouseEventInEmacsNotation(e);
-        if (debugKeyEvents()) {
-            log("mouseclick: " + key);
-        }
-        if (skipWebsite(e)) {
-            return;
-        }
-        if (shouldIgnoreKey(key)) {
-            return;
-        }
-        let command = getBindings()[key];
-        if (typeof(command) !== "undefined") {
-            runUserCommand(command);
-        } else {
-            if (debugging()) {
-                log("no associated function with this key");
+    /**
+     * shared code for regular mouse event handler and context menu event
+     * handler.
+     */
+    let buildMouseEventHandler = function (func) {
+        return function (e) {
+            const key = utils.describeMouseEventInEmacsNotation(e);
+            if (debugKeyEvents()) {
+                log("mouseclick: " + key);
             }
-        }
+            if (skipWebsite(e) || shouldIgnoreKey(key)) {
+                return;
+            }
+            let command = getBindings()[key];
+            if (typeof(command) !== "undefined") {
+                e.preventDefault();    // mostly useful for middle click and right click
+                func(command);
+            } else {
+                if (debugging()) {
+                    log("no associated function with this key");
+                }
+            }
+        };
+    };
+
+    let mouseEventHandler = buildMouseEventHandler(function (command) {
+        return runUserCommand(command);
     });
+
+    let contextMenuEventHandler = buildMouseEventHandler(function (_command) {
+        // noop. just disable default behavior by e.preventDefault().
+    });
+
+    // all three event handlers are required to properly support mouse-[12345]
+    // key bindings.
+    document.addEventListener("click", mouseEventHandler);
+    document.addEventListener("auxclick", mouseEventHandler);
+    document.addEventListener("contextmenu", contextMenuEventHandler);
 
     document.addEventListener("wheel", function (e) {
         var key = utils.describeWheelEventInEmacsNotation(e);
