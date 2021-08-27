@@ -10,7 +10,7 @@
 // 4. "下一页" "下页" etc
 // 5. "Next Chapter" "Thread Next" etc
 // 6. endswith "&nbsp;»"
-var nextPattern = /(?:(^|>)(next[ _]page|Nächste Seite|la page suivante|следующей страницы)(<|$)|(^|>\s*)(next|nächste|Suivant|Следующая)(\s*<|$|( |&nbsp;|\u00A0){1,2}?(?:→|›|▸|»|›|>>|&(gt|#62|#x3e);)|1?\.(?:gif|jpg|png|webp))|^(→|›|▸|»|››| ?(&(gt|#62|#x3e);)+ ?)$|(下|后)一?(?:页|糗事|章|回|頁|张)|^(Next Chapter|Thread Next|Go to next page)|&nbsp;»[ \t\n]*$)/i;
+var nextPattern = /(?:(^|>)(next[ _]page|Nächste Seite|la page suivante|следующей страницы)(<|$)|(^|>\s*)(next( +page)?|nächste|Suivant|Следующая)(\s*<|$|( |&nbsp;|\u00A0){1,2}?(?:→|›|▸|»|›|>>|&(gt|#62|#x3e);)|1?\.(?:gif|jpg|png|webp))|^(→|›|▸|»|››| ?(&(gt|#62|#x3e);)+ ?)$|(下|后)一?(?:页|糗事|章|回|頁|张)|^(Next Chapter|Thread Next|Go to next page)|&nbsp;»[ \t\n]*$)/i;
 
 var goodMatch = [
     "next", "Next", "next page", "next_page",
@@ -19,7 +19,7 @@ var goodMatch = [
 
     "next →", "next ›", "next »", "next &gt;", "Next &gt;&gt;&gt;",
     "Next &gt;", "Next &#62;", "Next&nbsp;&#62;", "Next&nbsp;&gt;",
-    "next.gif", "next1.png", "next.webp", "Next  »",
+    "next.gif", "next1.png", "next.webp", "Next  »", "Next Page »",
 
     "››", "&gt;", " &gt;&gt; ", "»", "›", "→", "&#62;", "&#x3e;",
     "&nbsp;»", "URL-based access control\n              &nbsp;»",
