@@ -1,8 +1,11 @@
 * COMMENT -*- mode: org -*-
 #+Date: 2017-02-24
-Time-stamp: <2021-04-28>
+Time-stamp: <2021-11-07>
 
 * Rewrite nextpage add-on using WebExtensions
+
+* Privacy Policy
+see ./privacy-policy.rst or on the page you download this add-on.
 
 * Credit
 Icon made by Freepik from www.flaticon.com
