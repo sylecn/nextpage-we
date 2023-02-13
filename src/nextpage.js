@@ -1296,7 +1296,8 @@
         }
 
         if (typeof(window.scrollMaxY) !== 'undefined') {    // firefox
-            return window.scrollMaxY <= window.scrollY;
+            // 10px is used as float point comparison delta
+            return window.scrollY + 10 >= window.scrollMaxY;
         } else {    // chrome
             // 10px is used as float point comparison delta
             return window.innerHeight + window.scrollY + 10 >= getDocumentHeight();
