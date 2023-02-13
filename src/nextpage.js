@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022 Yuanle Song <sylecn@gmail.com>
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023 Yuanle Song <sylecn@gmail.com>
 //
 // The JavaScript code in this page is free software: you can
 // redistribute it and/or modify it under the terms of the GNU
@@ -1191,6 +1191,20 @@
             if (link.click) {
                 // buttons has .click() function
                 link.click();
+
+                const pageURL = document.location.href;
+                if (pageURL.match(/https:\/\/weread.qq.com\/web\/reader/i)) {
+                    // special handling for wechat read (微信读书).
+                    // button.click() doesn't work on these pages. it requires
+                    // either a mouseevent with proper source element. Here I
+                    // just simulate a ArrowRight (next page) or ArrowLeft
+                    // (prev page) key press, which is easier.
+                    const KEY_CODE_ARROW_RIGHT = 39;
+                    const KEY_CODE_ARROW_LEFT = 37;
+                    // support both next page and prev page link.
+                    const keyCodeToPress = link.textContent.indexOf("上") !== -1 ? KEY_CODE_ARROW_LEFT : KEY_CODE_ARROW_RIGHT;
+                    document.dispatchEvent(new KeyboardEvent('keydown', {keyCode: keyCodeToPress}));
+                }
                 return true;
             } else {
                 // <a> link doesn't have a .click() function
@@ -1627,4 +1641,5 @@
 
 // Local Variables:
 // indent-tabs-mode: nil
+// js-curly-indent-offset: 0
 // End:
