@@ -33,6 +33,11 @@
         return variables.debugContentEditable;
     };
     let debugIFrame = function () {return variables.debugIFrame;};
+    let debugPrefetch = function () {return variables.debugPrefetch;};
+    /**
+     * return true if prefetch is enabled.
+     */
+    let prefetchEnabled = function () {return ! variables.prefetchDisabled;};
     // eslint-disable-next-line no-console
     let log = console.log;
 
@@ -1256,7 +1261,7 @@
         if (debugGotoNextPage()) {
             log("in gotoNextPage()");
         }
-        let nextpageLink = getNextPageLink();
+        const nextpageLink = getNextPageLink();
         if (nextpageLink) {
             if (debugGotoNextPage()) {
                 log("got nextpage link:\n" + utils.linkToString(nextpageLink));
@@ -1518,6 +1523,40 @@
         }
     };
 
+    /**
+     * prerender or prefetch next page if prefetch is enabled in user config.
+     */
+    let prefetchMaybe = function () {
+        if (prefetchEnabled()) {
+            /**
+             * return true if prerender is supported by this browser.
+             */
+            const prerenderSupported = function () {
+                // firefox doesn't support prerender. chrome/msedge supports it.
+                return typeof(window.scrollMaxY) === 'undefined';
+            };
+
+            const nextpageLink = getNextPageLink();
+            if (nextpageLink.hasAttribute("href")) {
+                const link = document.createElement("link");
+                link.href = nextpageLink.href;
+                link.rel = prerenderSupported() ? "prerender" : "prefetch";
+                if (debugPrefetch()) {
+                    log("will " + link.rel + " href " + nextpageLink.href);
+                }
+                document.body.appendChild(link);
+            } else {
+                if (debugPrefetch()) {
+                    log("No href link found for prefetch.");
+                }
+            }
+        } else {
+            if (debugPrefetch()) {
+                log("Note: prefetch disabled in user preferences. Try remove (disable-prefetch)");
+            }
+        }
+    };
+
     // read parsed user config if there is one.
     const STORAGE_KEY_PARSED_CONFIG = 'user-config-parsed';
     store.get(STORAGE_KEY_PARSED_CONFIG, (result) => {
@@ -1533,6 +1572,10 @@
                     "variables": variables
                 }));
             }
+
+            // run prefetch *after* user config is parsed. Because user might
+            // have disabled it.
+            prefetchMaybe();
         }
     }, log);
 

@@ -6,12 +6,12 @@
     <title>nextpage add-on help</title>
     <style>
       dl {margin-left: 20px;}
-      table {margin-left: 50px; width: 500px; border: 1px solid black; border-collapse: collapse;}
-      th, td {border: 1px solid black;}
+      table {margin-left: 50px; width: 800px; border: 1px solid black; border-collapse: collapse;}
+      th, td {border: 1px solid black; padding: 5px;}
       pre {margin-left: 20px;}
       dt {margin-top: 10px;}
 
-      #key-table {width: 300px;}
+      #key-table {width: 500px;}
       #key-table td {text-align: center;}
       .keyname {font-family: monospace; font-size:1.3em;}
       .command-name {font-family: monospace; font-size:1.3em;}
@@ -25,7 +25,7 @@
     <h4>Notes to old users (nextpage v1.x)</h4>
     <p>If you have used user config file before nextpage v2.0, you need to copy your config to the user config area in add-on preferences. The old config file ~/.config/nextpage.lisp is no longer read by nextpage after v2.0 when nextpage is rewritten in <a href="https://developer.mozilla.org/en-US/Add-ons/WebExtensions">Web Extension</a>.</p>
     <h3>About User Config</h3>
-    <p>You may open nextpage add-on options to see the built-in config and user config. The built-in config defines default bindings and is always active. It is shipped with each version of nextpage and you can't edit it. The user config is a property stored in <a href="https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/storage/sync">firefox storage.sync</a> or <a href="https://developer.chrome.com/extensions/storage#property-sync">chrome storage.sync</a> depending on your browser. User config is empty by default. User config can be used to overwrite built-in config. You may remove or modify default bindings defined in built-in config or add new bindings. The user config is synchronized across devices if you have signed in firefox/chrome.</p>
+    <p>You may open nextpage add-on options to see the built-in config and user config. The built-in config defines default bindings and is always active. It is shipped with each version of nextpage and you can't edit it. The user config is a property stored in <a href="https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/storage/sync">firefox storage.sync</a> or <a href="https://developer.chrome.com/extensions/storage#property-sync">chrome storage.sync</a> depending on your browser. User config is empty by default. User config can be used to overwrite built-in config. You may remove or modify default bindings defined in built-in config or add new bindings. The user config is synchronized across devices if you have signed in firefox, chrome, or msedge.</p>
 
     <p>After you edit user config, click "Save" button to save it. New config will be effective in new tabs or new document opened in existing tabs.</p>
 
@@ -34,7 +34,7 @@
     <h4>Supported Commands</h4>
     <dl>
       <dt>(bind KEY-NAME COMMAND-NAME)</dt>
-      <dd>Bind a key to a command. The syntax used to define KEY-NAME is shown in later section.</dd>
+      <dd>Bind a key to a command. The syntax for KEY-NAME and all possible COMMAND-NAME is shown in later section.</dd>
 
       <dt>(unbind-all)</dt>
       <dd>Remove all previous bindings before this command, including built-in bindings.<br/>If you don't want to use any of the built-in key bindings, add this to the top of your user config file.</dd>
@@ -42,9 +42,22 @@
       <dt>(ignore-on WEBSITE-REGEXP)</dt>
       <dd>Do not run any nextpage commands when page URL matched WEBSITE-REGEXP.</dd>
 
+      <dt>(disable-prefetch)</dt>
+      <dd>By default, nextpage will prerender (chrome/msedge) or prefetch (firefox) nextpage link to speed up page loading. If you disable-prefetch, these won't happen.</dd>
+    </dl>
+    <p>Debug related commands:</p>
+    <dl>
+      <dt>(enable-debug)</dt>
+      <dd>more debug info shown in console</dd>
+      <dt>(enable-debug-for-key-events)</dt>
+      <dd>show more info for key events</dd>
+      <dt>(enable-debug-goto-next-page)</dt>
+      <dd>show more info for finding next page links or buttons</dd>
+      <dt>(enable-debug-for-prefetch)</dt>
+      <dd>show more prefetch related info</dd>
     </dl>
 
-    <h4>Built-in config</h4>
+    <h4>Built-in Config</h4>
     <p>This serves an example of how to write a user config.</p>
     <pre>(bind "SPC" 'nextpage-maybe)
 (bind "n" 'nextpage)
@@ -57,12 +70,23 @@
 (bind "M-p" 'history-back)
 (bind "M-n" 'nextpage)
 </pre>
-    <p>Some more user config examples:</p>
-    <pre>(ignore-on "https://.*\.example\.com/")
-(bind "P" 'previous-page)
+    <p>Some user config examples:</p>
+    <pre>;; don't do anything key binding handling on this website
+(ignore-on "https://.*\.example\.com/")
+
+;; bind p to previous-page instead of the default history-back
+(bind "p" 'previous-page)
+
+;; allow mouse scroll to goto next page when at bottom of page
+(bind "&lt;wheel-down&gt;" 'nextpage-maybe)
+
+;; press C key to copy-title-and-url
+(bind "c" 'copy-title-and-url)
     </pre>
 
-    <h4>Bind Command: Keys</h4>
+    <h4>Bind Command</h4>
+    <p>Bind command has a form of <code>(bind KEY-NAME COMMAND-NAME)</code>. Now I will describe the two parameters.</p>
+    <h5>KEY-NAME: keyboard and mouse button notation</h5>
     <p>A subset of Emacs key names are used in bind. Here is a table to get you started.</p>
     <table id="key-table">
       <tr><th>Key Name</th><th>Meaning</th></tr>
@@ -87,10 +111,10 @@
     <p>If you have emacs installed, to known a key's key name (the string representation), start emacs and type C-h c, then type your key. The key name will be shown in minibuffer. Note that key sequence is not supported by nextpage. So you can't bind "C-x n" to nextpage command.</p>
     <p>For more document, see emacs document <a href="http://www.gnu.org/software/emacs/manual/html_node/emacs/Keys.html#Keys">Keys</a>, <a href="http://www.gnu.org/software/emacs/manual/html_node/emacs/Commands.html#Commands">Commands</a> and <a href="http://www.gnu.org/software/emacs/manual/html_node/emacs/Key-Bindings.html#Key-Bindings">Key Bindings</a>.</p>
 
-    <h4>Bind Command: Commands</h4>
-    <p>Available commands:</p>
+    <h5>COMMAND-NAME: All Supported Commands</h5>
+    <p>Available commands to use with bind:</p>
     <table>
-      <tr><th>Command</th><th>Meaning</th></tr>
+      <tr><th>Command</th><th>Description</th></tr>
       <tr><td class="command-name">nextpage-maybe</td><td>scroll up / next page</td></tr>
       <tr><td class="command-name">nextpage</td><td>next page</td></tr>
       <tr><td class="command-name">history-back</td><td>go back one page in history</td></tr>

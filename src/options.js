@@ -52,6 +52,7 @@
                             "copy-title",
                             "copy-title-and-url",
                             "copy-title-and-url-maybe",
+                            "disable-prefetch",
                             "nil"];
     /**
      * returns true if given nextpage config command is valid.
@@ -110,6 +111,9 @@
             }
 
             switch (command) {
+            case "disable-prefetch":
+                variables['prefetchDisabled'] = true;
+                break;
             case "enable-debug":
                 variables['debugging'] = true;
                 break;
@@ -133,6 +137,9 @@
                 break;
             case "enable-debug-for-iframe":
                 variables['debugIFrame'] = true;
+                break;
+            case "enable-debug-for-prefetch":
+                variables['debugPrefetch'] = true;
                 break;
             case "disable-debug":
                 variables['debugging'] = false;

@@ -1,6 +1,6 @@
 * COMMENT -*- mode: org -*-
 #+Date: 2017-02-24
-Time-stamp: <2022-08-29>
+Time-stamp: <2023-02-14>
 
 * Rewrite nextpage add-on using WebExtensions
 
@@ -78,9 +78,8 @@ debian install manual:
 http://www.debian.org/releases/stable/amd64/
 emacs manual:
 http://www.gnu.org/software/emacs/manual/html_node/emacs/Commands.html#Commands
-fedora doc:
-https://docs-old.fedoraproject.org/en-US/Fedora/26/html/Installation_Guide/index.html
-https://docs-old.fedoraproject.org/en-US/Fedora/26/html/System_Administrators_Guide/index.html
+freebsd handbook:
+https://docs.freebsd.org/en/books/handbook/
 boost library:
 https://www.boost.org/doc/libs/1_66_0/doc/html/array.html
 bing search result:
@@ -178,6 +177,72 @@ https://developer.mozilla.org/en-US/docs/Web/API/Element/auxclick_event
 press middle button on the example here doesn't work either.
 
 * done								      :entry:
+** 2023-02-14 nextpage support prefetch
+Link prefetching FAQ - HTTP | MDN
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Link_prefetching_FAQ
+
+<link>: The External Resource Link element - HTML: HyperText Markup Language | MDN
+https://developer.mozilla.org/en-US/docs/Web/HTML/Element/link#attributes
+firefox doesn't support link prefetch?
+
+- prefetch is supported by all 3.
+  prerender is supported by chrome.
+
+- put this feature behind a flag. disabled by default.
+
+  (enable-prefetch)
+  (enable-prerender)
+
+  <link rel="prefetch" href="/images/big.jpeg" />
+  <link rel="prerender" href="/page/2" >
+
+  when to add these elements to DOM? after page load.
+  just add in nextpage.js load time, if feature is enabled.
+
+- create a test page to test this feature.
+  https://nextpage.emacsos.com/prefetch-test/1
+  https://nextpage.emacsos.com/prefetch-test/2
+  https://nextpage.emacsos.com/prefetch-test/3
+
+  put a lot of text and image on each page.
+  have next page and prev page link on each page.
+
+  <link rel="prefetch" href="/images/big.jpeg" as="image" />
+
+- if it works, update command in usage.html.
+  add notes on prerender is not supported by firefox.
+
+  prefetch works in firefox.
+  prerender works in chrome/msedge.
+
+- problems
+  - in chrome, load unpacked no longer works
+    I can't see any files, only dir. click open doesn't add local extension.
+
+    drop file from file manager to that page also fail.
+    "drop to install" shows, but does nothing.
+
+    is it affected by chrome local admin?
+    /etc/opt/chrome/policies/managed/policy001.json
+
+    xorg/chrome.sls:/etc/opt/chrome/policies/managed/policy001.json
+
+    nope. still fail to install.
+
+    chrome://policy/
+
+    try drop policy. still fail to install local addon.
+
+  - try it in windows.
+    in ryzen5 winten02 VM.
+
+    cp -r build/chrome/ ~/d/shared/nextpage-chrome/
+    it works in windows 10.
+
+    prerender works very well on freebsd handbook and bing search result
+    page. I would like to enable it by default. User can disable it via config
+    file.
+
 ** 2021-04-26 <mouse-4>, <mouse-5>, <wheel-up>, <wheel-down> no longer work. :invalid:
 github issue 48
 https://github.com/sylecn/ff-nextpage/issues/48
