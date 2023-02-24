@@ -167,10 +167,18 @@
      */
     let userIsTyping = function () {
         var focusElement = document.activeElement;
+
         // walk down the frames to get the bottom level activeElement
         while (focusElement.tagName.match(/^FRAME$/i)) {
             focusElement = focusElement.contentDocument.activeElement;
         }
+
+        // get active element inside shadow DOM
+        // https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/activeElement
+        if (focusElement.shadowRoot) {
+            focusElement = focusElement.shadowRoot.activeElement;
+        }
+
         if (focusElement.tagName.match(/^(INPUT|TEXTAREA|SELECT)$/i)) {
             return true;
         }
@@ -1537,7 +1545,7 @@
             };
 
             const nextpageLink = getNextPageLink();
-            if (nextpageLink.hasAttribute("href")) {
+            if (nextpageLink && nextpageLink.hasAttribute("href")) {
                 const link = document.createElement("link");
                 link.href = nextpageLink.href;
                 link.rel = prerenderSupported() ? "prerender" : "prefetch";
