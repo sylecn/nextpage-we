@@ -235,6 +235,7 @@
      */
     // TODO make this list configurable.
     let ignoreBindingAList = [
+        [/https:\/\/germanoid\.github\.io\/terminal-helper\//i, "*"],
         [/https?:\/\/www\.google\.com\/reader\/view/i, ['SPC', '1', '2']],
         [/https?:\/\/www\.google\.com\/transliterate/i, "*"],
         [/http:\/\/typing.sjz.io\//i, "*"],
