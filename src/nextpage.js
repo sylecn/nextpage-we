@@ -166,7 +166,7 @@
      * etc.
      */
     let userIsTyping = function () {
-        var focusElement = document.activeElement;
+        let focusElement = document.activeElement;
 
         // walk down the frames to get the bottom level activeElement
         while (focusElement.tagName.match(/^FRAME$/i)) {
@@ -175,7 +175,8 @@
 
         // get active element inside shadow DOM
         // https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/activeElement
-        if (focusElement.shadowRoot) {
+        // walk into current shadow dom's activeElement until it is not a shadow dom.
+        while (focusElement.shadowRoot) {
             focusElement = focusElement.shadowRoot.activeElement;
         }
 
