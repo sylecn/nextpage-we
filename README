@@ -1,6 +1,6 @@
 * COMMENT -*- mode: org -*-
 #+Date: 2017-02-24
-Time-stamp: <2023-02-24>
+Time-stamp: <2023-05-18>
 
 * Rewrite nextpage add-on using WebExtensions
 
@@ -118,7 +118,7 @@ https://addons.mozilla.org/en-US/developers/
 
 Chrome Webstore Developer Dashboard
 https://chrome.google.com/webstore/developer/dashboard
-click existing item > Build > Package > rhs "Upload new package" button
+click existing item > lhs Package > rhs "Upload new package" button
 
 // 2022-08-29 really bad UI design. old UI is easier to find where to upload new pkg.
 
