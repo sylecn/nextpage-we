@@ -1453,6 +1453,26 @@
     };
 
     /**
+     * @return true if we are at top of a page.
+     * @return false otherwise.
+     */
+    let isAtTop = function () {
+        return window.scrollY === 0;
+    };
+
+    /**
+     * if document view is at top of the page, and there is a previous page,
+     * goto previous page.
+     */
+    let gotoPreviousPageMaybe = function () {
+        if (isAtTop()) {
+            // go to next page
+            return gotoPreviousPage();
+        }
+        return scrollUp();
+    };
+
+    /**
      * go back in history
      */
     let historyBack = function () {
@@ -1532,6 +1552,7 @@
         switch (command) {
         case "nextpage-maybe": return gotoNextPageMaybe();
         case "nextpage": return gotoNextPage();
+        case "previous-page-maybe": return gotoPreviousPageMaybe();
         case "previous-page": return gotoPreviousPage();
         case "history-back": return historyBack();
         case "close-tab": return closeTab();

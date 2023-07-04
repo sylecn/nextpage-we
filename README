@@ -142,35 +142,6 @@ I don't know whether hotkey key events are exposed in other ways.
 not sure why.
 * todos								      :entry:
 ** 
-** 2023-07-04 fix github issue #50, add command for scroll-up and scroll-down
-增加向上、向下滚屏的功能，允许用户定义快捷键 #50
-https://github.com/sylecn/ff-nextpage/issues/50
-
-- Window: scrollBy() method - Web APIs | MDN
-  https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollBy
-
-  scroll down one page
-  window.scrollBy(0, window.innerHeight);
-
-  window.scrollBy({top: window.innerHeight, behavior: "instant"});
-
-  scroll up one page
-  window.scrollBy(0, -window.innerHeight);
-
-  window.scrollBy({top: -window.innerHeight, behavior: "instant"});
-
-  window.scrollBy({top: -window.innerHeight, behavior: "auto"});
-  // auto is slower.
-
-  page down, page up seems faster. I don't need smooth here.
-
-- so just add two actions. no default bindings.
-
-  scroll-up
-  scroll-down
-
-- also add previous-page-maybe, scroll-up if not at top, previous-page otherwise.
-
 ** 2019-03-07 make getNextPageLink() function usable in browser dev tools.
 e.g.
 let np = (function() {...})();
@@ -206,6 +177,35 @@ https://developer.mozilla.org/en-US/docs/Web/API/Element/auxclick_event
 press middle button on the example here doesn't work either.
 
 * done								      :entry:
+** 2023-07-04 fix github issue #50, add command for scroll-up and scroll-down
+增加向上、向下滚屏的功能，允许用户定义快捷键 #50
+https://github.com/sylecn/ff-nextpage/issues/50
+
+- Window: scrollBy() method - Web APIs | MDN
+  https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollBy
+
+  scroll down one page
+  window.scrollBy(0, window.innerHeight);
+
+  window.scrollBy({top: window.innerHeight, behavior: "instant"});
+
+  scroll up one page
+  window.scrollBy(0, -window.innerHeight);
+
+  window.scrollBy({top: -window.innerHeight, behavior: "instant"});
+
+  window.scrollBy({top: -window.innerHeight, behavior: "auto"});
+  // auto is slower.
+
+  page down, page up seems faster. I don't need smooth here.
+
+- so just add two actions. no default bindings.
+
+  scroll-up
+  scroll-down
+
+- also add previous-page-maybe, scroll-up if not at top, previous-page otherwise.
+
 ** 2023-02-14 nextpage support prefetch
 Link prefetching FAQ - HTTP | MDN
 https://developer.mozilla.org/en-US/docs/Web/HTTP/Link_prefetching_FAQ

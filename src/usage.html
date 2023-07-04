@@ -115,15 +115,16 @@
     <p>Available commands to use with bind:</p>
     <table>
       <tr><th>Command</th><th>Description</th></tr>
-      <tr><td class="command-name">nextpage-maybe</td><td>scroll up / next page</td></tr>
-      <tr><td class="command-name">nextpage</td><td>next page</td></tr>
-      <tr><td class="command-name">history-back</td><td>go back one page in history</td></tr>
-      <tr><td class="command-name">previous-page</td><td>previous page</td></tr>
+      <tr><td class="command-name">nextpage</td><td>goto next page</td></tr>
+      <tr><td class="command-name">nextpage-maybe</td><td>scroll down. if already at page bottom, goto next page</td></tr>
+      <tr><td class="command-name">previous-page</td><td>goto previous page</td></tr>
+      <tr><td class="command-name">previous-page-maybe</td><td>scroll up. if already at page top, goto previous page. I don't think this is as useful as nextpage-maybe command. But provided anyway.</td></tr>
+      <tr><td class="command-name">history-back</td><td>go back one step in history</td></tr>
       <tr><td class="command-name">copy-title-and-url-maybe</td><td>copy page title and url to clipboard if no text is being selected</td></tr>
       <tr><td class="command-name">copy-title-and-url</td><td>copy page title and url to clipboard</td></tr>
       <tr><td class="command-name">copy-title</td><td>copy page title to clipboard</td></tr>
-      <tr><td class="command-name">scroll-up</td><td>scroll one page up, to read previous content</td></tr>
-      <tr><td class="command-name">scroll-down</td><td>scroll one page down, to read following content</td></tr>
+      <tr><td class="command-name">scroll-up</td><td>scroll up one page, to read previous content</td></tr>
+      <tr><td class="command-name">scroll-down</td><td>scroll down one page, to read following content</td></tr>
       <tr><td class="command-name">nil</td><td>do nothing</td></tr>
     </table>
     <p>Commands should be quoted in bind command. For command foo, use single quote form 'foo. Currently omitting the quote also works, but this may change if I choose to introduce a full lisp parser in the future.</p>
