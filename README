@@ -124,6 +124,8 @@ click existing item > lhs Package > rhs "Upload new package" button
 
 Microsoft Edge
 https://partner.microsoft.com/en-us/dashboard/microsoftedge/overview
+- Packages > Upload package
+- Extension overview > click new version's Publish button to trigger review
 
 ** in user config, how to add new command for user to bind?
 - update config file parser in options.js, namely VALID_COMMANDS
