@@ -233,12 +233,12 @@
      * nextpage will stop when it finds the first match, so you should put
      * more specific regexp earlier in the list.
      */
-    // TODO make this list configurable.
     let ignoreBindingAList = [
         [/https:\/\/germanoid\.github\.io\/terminal-helper\//i, "*"],
         [/https?:\/\/www\.google\.com\/reader\/view/i, ['SPC', '1', '2']],
         [/https?:\/\/www\.google\.com\/transliterate/i, "*"],
         [/http:\/\/typing.sjz.io\//i, "*"],
+        [/https:\/\/qwerty.kaiyi.cool\//i, "*"],
         // exception rule, pipermail or mailing list archives is not webmail.
         [/mail\..*\/(pipermail|archives)/i, ""],
         // ignore common webmail hosts, nextpage bindings can do little on
