@@ -184,6 +184,19 @@ https://developer.mozilla.org/en-US/docs/Web/API/Element/auxclick_event
 press middle button on the example here doesn't work either.
 
 * done								      :entry:
+** 2023-07-04 distribute on AMO gives a warning about Manifest V3
+Manifest V3 compatibility warning
+
+Firefox is adding support for manifest version 3 (MV3) extensions in Firefox
+109.0, however, older versions of Firefox are only compatible with manifest
+version 2 (MV2) extensions. We recommend uploading Manifest V3 extensions as
+self-hosted for now to not break compatibility for your users.
+
+For more information about the MV3 extension roll-out or self-hosting MV3
+extensions, visit https://mzl.la/3hIwQXX
+
+- well. if firefox doesn't retire MV2, I will stay in MV2.
+
 ** 2023-07-04 switch to manifest v3.
 - chrome
   Extensions - Chrome Developers
