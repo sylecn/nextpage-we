@@ -142,6 +142,13 @@ I don't know whether hotkey key events are exposed in other ways.
 not sure why.
 * todos								      :entry:
 ** 
+** 2023-07-04 make preferences window support dark-mode if browser theme is dark-mode.
+** 2023-07-04 I would like to add a context menu item to copy-title-and-url,
+especially when hotkey is disabled on the page. is that possible?
+
+in user config, you can enable this menu item by
+(enable-context-menu 'copy-title-and-url)
+
 ** 2019-03-07 make getNextPageLink() function usable in browser dev tools.
 e.g.
 let np = (function() {...})();
@@ -177,6 +184,92 @@ https://developer.mozilla.org/en-US/docs/Web/API/Element/auxclick_event
 press middle button on the example here doesn't work either.
 
 * done								      :entry:
+** 2023-07-04 switch to manifest v3.
+- chrome
+  Extensions - Chrome Developers
+  https://developer.chrome.com/docs/extensions/
+  Migrate from Manifest V2 to Manifest V3
+- v3 changes
+  - service worker replace background pages.
+    I don't use bg pages.
+  - other changes doesn't affect my extension.
+    // so I can just update version to 3.
+- update my extension
+- Update the manifest - Chrome Developers
+  https://developer.chrome.com/docs/extensions/migrating/manifest/
+- Manifest V3 migration checklist - Chrome Developers
+  https://developer.chrome.com/docs/extensions/migrating/checklist/
+- Replace Browser Actions and Page Actions with Actions
+  https://developer.chrome.com/docs/extensions/migrating/api-calls/#replace-browser-page-actions
+  MOVED I would like to add a context menu item to copy-title-and-url, when hotkey
+  is disabled. is that possible?
+
+  in user config, you can enable this menu item by
+  (enable-context-menu 'copy-title-and-url)
+- yeah, nothing to change for chrome.
+- now change firefox's document.
+- nothing to change for firefox. also, firefox is not deprecating v2.
+  just different browser version support different WebExtension APIs.
+
+  Browser extensions - Mozilla | MDN
+  https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions
+  manifest.json - Mozilla | MDN
+  https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json
+  Browser support for JavaScript APIs - Mozilla | MDN
+  https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Browser_support_for_JavaScript_APIs
+
+- new code tested in chrome 114.
+- test in firefox 114.
+- problems
+  - when firefox is using dark theme, my preferences page doesn't follow the theme.
+    bg is white.
+  - hotkeys not working in firefox.
+    no key events.
+    check API changes in firefox.
+
+    I used
+    document.addEventListener("keydown", function (e) {...})
+
+    Permissions
+    access your data for all websites    toggle is off.
+
+    when this is enabled, it works.
+    so check permission changes in v3 in firefox.
+
+    search: firefox web extension access your data for all websites is off by default
+
+    I think browser will ask user when user install the add-on.
+  - in chrome, preferences page width, height should be set.
+    default is too small. user can't see Save and Help button.
+
+    search: chrome options_ui window min height and width
+
+    try add css in options.html
+
+    nope. min-height is document height, it just add white space at page
+    bottom. the window size is still small.
+
+    search: chrome options_ui window min height and width
+
+    How can I set height of chrome extension to browser window height? - Stack Overflow
+    https://stackoverflow.com/questions/47568794/how-can-i-set-height-of-chrome-extension-to-browser-window-height
+
+    600px height and 800px width - are the maximums for a popup size.
+    You can't change that.
+
+    Then I need to rework this UI.
+
+    can I show preferences in a regular tab?
+
+    Chrome Extensions: Give users options - Chrome Developers
+    https://developer.chrome.com/docs/extensions/mv3/options/
+
+    use options_page to open in a tab.
+    use options_ui to open in pop up or tab (with open_in_tab: true).
+
+    I will keep using options_page.
+    Firefox has different behavior with Chrome on this.
+
 ** 2023-07-04 fix github issue #50, add command for scroll-up and scroll-down
 增加向上、向下滚屏的功能，允许用户定义快捷键 #50
 https://github.com/sylecn/ff-nextpage/issues/50
