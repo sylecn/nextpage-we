@@ -53,6 +53,8 @@
                             "copy-title-and-url",
                             "copy-title-and-url-maybe",
                             "disable-prefetch",
+                            "scroll-up",
+                            "scroll-down",
                             "nil"];
     /**
      * returns true if given nextpage config command is valid.

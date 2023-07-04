@@ -1487,6 +1487,20 @@
         copyTitleAndUrl();
     };
 
+    /**
+     * scroll one page up
+     */
+    let scrollUp = function () {
+        window.scrollBy({top: -window.innerHeight, behavior: "instant"});
+    };
+
+    /**
+     * scroll one page down
+     */
+    let scrollDown = function () {
+        window.scrollBy({top: window.innerHeight, behavior: "instant"});
+    };
+
     let closeTab = function () {
         // Note: Scripts may not close windows that were not opened by script.
         // So window.close() doesn't work.
@@ -1524,6 +1538,8 @@
         case "copy-title-and-url": return copyTitleAndUrl();
         case "copy-title": return copyTitle();
         case "copy-title-and-url-maybe": return copyTitleAndUrlMaybe();
+        case "scroll-up": return scrollUp();
+        case "scroll-down": return scrollDown();
         case "nil": break;      //do nothing.
         default:
             if (debugging()) {
