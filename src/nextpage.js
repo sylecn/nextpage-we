@@ -648,6 +648,13 @@
     // ADD new preGeneric and postGeneric handler here
 
     /**
+     * example wordpress.com page https://socket3.wordpress.com/blog/page/4/
+     */
+    let getLinkForWordPress = function (url, doc) {
+        return doc.querySelector('div[class~="nav-previous"] a');
+    };
+
+    /**
      * the PKU BBS next page link look like this:
      * <div class="paging-button n"><a class="link" href="?bid=35&amp;threadid=17173713&amp;page=2"></a>下一页 &gt;</div>
      */
@@ -1042,9 +1049,10 @@
          * special case for some website, pre-generic
          */
         var preGeneric = [
-            [/https:\/\/bbs.pku.edu.cn\//i, getLinkForPkuBBS],
-            [/https:\/\/hub.docker.com\//i, getLinkForDockerHub],
-            [/https:\/\/ninenines.eu\/docs\//i, getLinkForNinenines],
+            [/https:\/\/.*\.wordpress\.com\//i, getLinkForWordPress],
+            [/https:\/\/bbs\.pku\.edu\.cn\//i, getLinkForPkuBBS],
+            [/https:\/\/hub\.docker\.com\//i, getLinkForDockerHub],
+            [/https:\/\/ninenines\.eu\/docs\//i, getLinkForNinenines],
             [/\/((thread|forum)-|(viewthread|forumdisplay)\.php)/i, getLinkForDiscuz],
             [/^http:\/\/osdir\.com\/ml\//i, getLinkForOsdirML],
             [/^http:\/\/coding\.derkeiler\.com\/Archive\//i, getLinkForDerkeilerML],
