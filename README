@@ -118,13 +118,14 @@ https://addons.mozilla.org/en-US/developers/
 
 Chrome Webstore Developer Dashboard
 https://chrome.google.com/webstore/developer/dashboard
-click existing item > lhs Package > rhs "Upload new package" button
+click existing item > left hand side, Build > Package > rhs "Upload new package" button
 
 // 2022-08-29 really bad UI design. old UI is easier to find where to upload new pkg.
 
 Microsoft Edge
 https://partner.microsoft.com/en-us/dashboard/microsoftedge/overview
-- Packages > Upload package
+- select the extension
+- Packages > click "Replace" link
 - Extension overview > click new version's Publish button to trigger review
 
 ** in user config, how to add new command for user to bind?
