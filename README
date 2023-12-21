@@ -1,6 +1,6 @@
 * COMMENT -*- mode: org -*-
 #+Date: 2017-02-24
-Time-stamp: <2023-07-04>
+Time-stamp: <2023-12-22>
 
 * Rewrite nextpage add-on using WebExtensions
 
@@ -186,6 +186,66 @@ https://developer.mozilla.org/en-US/docs/Web/API/Element/auxclick_event
 press middle button on the example here doesn't work either.
 
 * done								      :entry:
+** 2023-12-22 fix issue #60 www.google.com should click on "More Results"
+- the link
+  #+begin_quote
+  <a class="T7sFge sW9g3e VknLRd"
+  href="https://www.google.com/search?q=debian&amp;sca_esv=592848921&amp;sxsrf=AM9HkKkCvWeLSV1KCvTYST9nZe6TWR7mBw:1703174757076&amp;source=hp&amp;ei=ZWKEZYezAsakwAOZlqDQCA&amp;iflsig=AO6bgOgAAAAAZYRwdezdqQJOpkx_8YuSHXi4yTXCZGXo&amp;uact=5&amp;oq=debian&amp;gs_lp=Egdnd3Mtd2l6IgZkZWJpYW4yChAjGIAEGIoFGCcyBBAjGCcyBBAjGCcyChAAGIAEGIoFGEMyCxAAGIAEGIoFGJECMgoQABiABBiKBRhDMgoQABiABBiKBRhDMgoQABiABBiKBRhDMgoQABiABBiKBRhDMgoQABiABBiKBRhDSI0GUABY9gRwAHgAkAEAmAGSAaABiQaqAQMwLja4AQPIAQD4AQHCAg4QABiABBiKBRiRAhixA8ICFBAuGIAEGIoFGLEDGIMBGMcBGK8BwgILEAAYgAQYsQMYgwHCAg4QABiABBiKBRixAxiDAcICCBAAGIAEGLEDwgIREAAYgAQYigUYkQIYsQMYgwHCAhEQLhiABBixAxiDARjHARjRA8ICDRAAGIAEGIoFGEMYsQM&amp;sclient=gws-wiz&amp;aomd=1"
+  style="transform: scale(1);" jsname="oHxHid" jsaction="qBEZuc"
+  aria-label="More results" data-ve-view="" role="button" data-hveid="CCkQBA"
+  data-ved="2ahUKEwiD4p609KCDAxUxbPUHHR1rA1IQqq4CegQIKRAE"
+  aria-hidden="false"><hr class="KXbwLb" aria-hidden="true"><h3
+  aria-hidden="true"><div class="GNJvt ipz2Oe"><span class="kQdGHd"><span
+  class="OTvAmd z1asCe QFl0Ff"><svg focusable="false"
+  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.59
+  8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"></path></svg></span></span><span
+  class="RVQdVd">More results</span></div></h3></a>
+  #+end_quote
+  just add "More results" in <a> link text should work.
+
+  ~/projects/firefox/nextpage-we/misc/test-regexp.js
+
+  but would this match things that it should not match?
+  maybe just add it in preGeneric rule.
+
+  www.google.com
+  how about country level google sites?
+  www.google.fr
+  #+begin_quote
+  <a class="T7sFge sW9g3e VknLRd"
+  href="https://www.google.fr/search?q=debian&amp;sca_esv=592848921&amp;source=hp&amp;ei=UGSEZf7aGszf2roP59GdgAc&amp;iflsig=AO6bgOgAAAAAZYRyYAAwkdOj5wlhvMrIdht3-9dGPM6W&amp;uact=5&amp;oq=debian&amp;gs_lp=Egdnd3Mtd2l6IgZkZWJpYW4yBRAAGIAEMgUQABiABDIFEAAYgAQyBRAAGIAEMgUQABiABDIFEAAYgAQyBRAAGIAEMgUQABiABDIFEAAYgAQyBRAAGIAESJcJUPQCWO8HcAF4AJABAZgBtgKgAakGqgEHMy4yLjAuMbgBA8gBAPgBAagCAMICERAuGIAEGLEDGIMBGMcBGNEDwgIIEAAYgAQYsQPCAgsQABiABBixAxiDAQ&amp;sclient=gws-wiz&amp;aomd=1"
+  style="transform: scale(1);" jsname="oHxHid" jsaction="qBEZuc" aria-label="
+  更多結果" data-ve-view="" role="button" data-hveid="CEUQBA"
+  data-ved="2ahUKEwi00tSm9qCDAxVnklYBHV7OAlUQqq4CegQIRRAE"
+  aria-hidden="false"><hr class="KXbwLb" aria-hidden="true"><h3
+  aria-hidden="true"><div class="GNJvt ipz2Oe"><span class="kQdGHd"><span
+  class="OTvAmd z1asCe QFl0Ff"><svg focusable="false"
+  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.59
+  8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"></path></svg></span></span><span
+  class="RVQdVd">更多結果</span></div></h3></a>
+  #+end_quote
+
+  www.google.com.hk 更多结果
+
+  #+begin_quote
+  <a class="T7sFge sW9g3e VknLRd"
+  href="https://www.google.com.hk/search?q=debian&amp;sca_esv=592848921&amp;source=hp&amp;ei=y2OEZYZU8qXaug-J3rf4Aw&amp;iflsig=AO6bgOgAAAAAZYRx2wrCzohtV0CN7LYHYz_sfoJ_SkHA&amp;uact=5&amp;oq=debian&amp;gs_lp=Egdnd3Mtd2l6IgZkZWJpYW4yBRAAGIAEMgUQABiABDIFEAAYgAQyBRAAGIAEMgUQABiABDIFEAAYgAQyBRAAGIAEMgUQABiABDIFEAAYgAQyBRAAGIAESMkIUO8CWKYHcAF4AJABAJgBhQGgAeIEqgEDNC4yuAEDyAEA-AEBqAIAwgILEAAYgAQYsQMYgwHCAgsQLhiABBjHARjRA8ICERAuGIAEGLEDGIMBGMcBGNEDwgIOEC4YgAQYsQMYgwEY1ALCAgsQLhiABBixAxiDAcICDhAAGIAEGIoFGLEDGIMB&amp;sclient=gws-wiz&amp;aomd=1"
+  style="transform: scale(1);" jsname="oHxHid" jsaction="qBEZuc" aria-label="
+  更多结果" data-ve-view="" role="button" data-hveid="CEEQBA"
+  data-ved="2ahUKEwjnne3g9aCDAxXhrlYBHRjWBcYQqq4CegQIQRAE"
+  aria-hidden="false"><hr class="KXbwLb" aria-hidden="true"><h3
+  aria-hidden="true"><div class="GNJvt ipz2Oe"><span class="kQdGHd"><span
+  class="OTvAmd z1asCe QFl0Ff"><svg focusable="false"
+  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.59
+  8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"></path></svg></span></span><span
+  class="RVQdVd">更多结果</span></div></h3></a>
+  #+end_quote
+
+- use preGeneric, I can support CN and EN.
+
+  querySelector match on attribute
+  it works.
+
 ** 2023-07-04 distribute on AMO gives a warning about Manifest V3
 Manifest V3 compatibility warning
 

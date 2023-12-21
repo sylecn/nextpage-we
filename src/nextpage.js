@@ -648,6 +648,16 @@
     // ADD new preGeneric and postGeneric handler here
 
     /**
+     * www.google.com, www.google.com.hk, www.google.fr etc.
+     */
+    let getLinkForGoogleSearch = function (url, doc) {
+        // query selector can not match on multiple attribute values, so I use
+        // multiple css selector ORed together to match on any of the
+        // translation of "More results" text.
+        return doc.querySelector('a[aria-label="More results"],a[aria-label="更多结果"],a[aria-label="更多結果"],a[aria-label="Weitere Ergebnisse"]');
+    };
+
+    /**
      * example wordpress.com page https://socket3.wordpress.com/blog/page/4/
      */
     let getLinkForWordPress = function (url, doc) {
@@ -1049,6 +1059,7 @@
          * special case for some website, pre-generic
          */
         var preGeneric = [
+            [/https:\/\/www\.google\./i, getLinkForGoogleSearch],
             [/https:\/\/.*\.wordpress\.com\//i, getLinkForWordPress],
             [/https:\/\/bbs\.pku\.edu\.cn\//i, getLinkForPkuBBS],
             [/https:\/\/hub\.docker\.com\//i, getLinkForDockerHub],
