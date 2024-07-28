@@ -3,5 +3,6 @@ src/manifest.json
 other-assets/
 node_modules/
 build/
-# I know what it does, but I still don't want to commit this file.
+# I know what these does, but I still don't want to commit these two files.
 package-lock.json
+yarn.lock

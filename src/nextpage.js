@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023 Yuanle Song <sylecn@gmail.com>
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023, 2024 Yuanle Song <sylecn@gmail.com>
 //
 // The JavaScript code in this page is free software: you can
 // redistribute it and/or modify it under the terms of the GNU
@@ -997,7 +997,11 @@
         return (matchesNext(b.innerHTML) ||
                 (b.getAttribute("accesskey") === 'n') ||
                 (b.hasAttribute("title") &&
-                 matchesNext(b.getAttribute("title"))));
+                 matchesNext(b.getAttribute("title"))) ||
+                // special support for Ant Design pagination.
+                // https://ant.design/components/pagination
+                (b.className === "ant-pagination-item-link" &&
+                 b.getElementsByClassName("anticon-right").length !== 0));
     };
 
     /**
@@ -1227,7 +1231,7 @@
                 link.click();
 
                 const pageURL = document.location.href;
-                if (pageURL.match(/https:\/\/weread.qq.com\/web\/reader/i)) {
+                if (pageURL.match(/https:\/\/weread\.qq\.com\/web\/reader/i)) {
                     // special handling for wechat read (微信读书).
                     // button.click() doesn't work on these pages. it requires
                     // either a mouseevent with proper source element. Here I
@@ -1238,6 +1242,9 @@
                     // support both next page and prev page link.
                     const keyCodeToPress = link.textContent.indexOf("上") !== -1 ? KEY_CODE_ARROW_LEFT : KEY_CODE_ARROW_RIGHT;
                     document.dispatchEvent(new KeyboardEvent('keydown', {keyCode: keyCodeToPress}));
+                } else if (pageURL.match(/https:\/\/.*\.m-team\.(cc|io)\/forum\/t\/[0-9]+/i)) {
+                    // auto scroll to top after click next page link.
+                    window.scroll({top: 0, behavior: "instant"});
                 }
                 return true;
             } else {
@@ -1320,11 +1327,13 @@
             return document.documentElement.scrollHeight;
         };
 
-        // this bad site doesn't have a correct html markup, firefox can't
-        // return the right document height, so I want SPC to just scroll
-        // up.
+        // These bad sites do not have a correct html markup, firefox/chrome
+        // can't return the right document height, so I want SPC to just
+        // scroll up.
         var hasBadMarkupDomainList = ["msdn.microsoft.com",
-                                      "bbs.sgamer.com"];
+                                      "bbs.sgamer.com",
+                                      "kp.m-team.cc",
+                                      "zp.m-team.io"];
         if (utils.inArray(document.domain, hasBadMarkupDomainList)) {
             return false;
         }
