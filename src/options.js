@@ -56,6 +56,7 @@
                             "disable-prefetch",
                             "scroll-up",
                             "scroll-down",
+                            "copy-download-link",
                             "nil"];
     /**
      * returns true if given nextpage config command is valid.

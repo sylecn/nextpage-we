@@ -1549,6 +1549,39 @@
         window.scrollBy({top: window.innerHeight, behavior: "instant"});
     };
 
+    /**
+     * copy direct download link on a supported website.
+     */
+    let copyDownloadLink = function () {
+        const title = document.title;
+        const url = document.URL;
+        let linkText = "";
+        if (title.indexOf("NexusPHP") !== -1 && url.match(/\/details\.php/i)) {
+            for (let link of document.getElementsByTagName("a")) {
+                const linkTexts = [
+                    "右键查看。",
+                    "Right click to view.",
+                    "右鍵查看。",
+                ];
+                if (linkTexts.includes(link.textContent)) {
+                    linkText = link.getAttribute('href');
+                    break;
+                }
+            }
+            if (debugging()) {
+                if (linkText !== "") {
+                    let torrentTitle = document.getElementById("top").textContent;
+                    log("copied link for " + torrentTitle);
+                } else {
+                    log("download link not found");
+                }
+            }
+        }
+        if (linkText !== "") {
+            utils.copyToClipboard(linkText);
+        }
+    };
+
     let closeTab = function () {
         // Note: Scripts may not close windows that were not opened by script.
         // So window.close() doesn't work.
@@ -1589,6 +1622,7 @@
         case "copy-title-and-url-maybe": return copyTitleAndUrlMaybe();
         case "scroll-up": return scrollUp();
         case "scroll-down": return scrollDown();
+        case "copy-download-link": return copyDownloadLink();
         case "nil": break;      //do nothing.
         default:
             if (debugging()) {
