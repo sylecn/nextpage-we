@@ -1564,7 +1564,7 @@
                     "右鍵查看。",
                 ];
                 if (linkTexts.includes(link.textContent)) {
-                    linkText = link.getAttribute('href');
+                    linkText = link.getAttribute('href') + "\n";
                     break;
                 }
             }
