@@ -1576,6 +1576,32 @@
                     log("download link not found");
                 }
             }
+        } else {
+            const match = url.match(/\.m-team\.[a-z]*\/detail\/([0-9]+)/i);
+            if (match) {
+                const authorization = localStorage.getItem("auth");
+                const torrentId = match[1];
+                if (authorization) {
+                    fetch('https://api2.m-team.cc/api/torrent/genDlToken',  {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'Authorization': authorization,
+                        },
+                        body: 'id=' + torrentId,
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            const linkUrl = data.data;
+                            utils.copyToClipboard(linkUrl);
+                        })
+                        .catch(error => log('Error:' + error));
+                } else {
+                    if (debugging()) {
+                        log('m-team get authorization from localStorage failed');
+                    }
+                }
+            }
         }
         if (linkText !== "") {
             utils.copyToClipboard(linkText);

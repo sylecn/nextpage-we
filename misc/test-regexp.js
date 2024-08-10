@@ -102,6 +102,21 @@ badMatch.forEach(function (v) {
     });
 })();
 
+// ======================
+
+function extractMTeamId(url) {
+  const match = url.match(/\.example\.[a-z]*\/detail\/([0-9]+)/i);
+  if (match) {
+    return match[1];
+  }
+}
+const url = "https://www.example.com/detail/810433";
+if (extractMTeamId(url) !== "810433") {
+  msgs.push("extract m-team ID failed");
+}
+
+// ======================
+
 if (msgs.length === 0) {
     log("all pass.");
 } else {
