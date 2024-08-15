@@ -343,6 +343,15 @@
         },
 
         /**
+         * copy given text to clipboard. if text doesn't end with newline, add
+         * a newline.
+         */
+        copyToClipboardWithNewLine: function (text) {
+            const s = text.endswith("\n") ? text : text + "\n";
+            this.copyToClipboard(s);
+        },
+
+        /**
          * test whether an element is in an array
          * @return true if it is.
          * @return false otherwise.
@@ -1564,7 +1573,7 @@
                     "右鍵查看。",
                 ];
                 if (linkTexts.includes(link.textContent)) {
-                    linkText = link.getAttribute('href') + "\n";
+                    linkText = link.getAttribute('href');
                     break;
                 }
             }
@@ -1593,7 +1602,7 @@
                         .then(response => response.json())
                         .then(data => {
                             const linkUrl = data.data;
-                            utils.copyToClipboard(linkUrl);
+                            utils.copyToClipboardWithNewLine(linkUrl);
                         })
                         .catch(error => log('Error:' + error));
                 } else {
@@ -1604,7 +1613,7 @@
             }
         }
         if (linkText !== "") {
-            utils.copyToClipboard(linkText);
+            utils.copyToClipboardWithNewLine(linkText);
         }
     };
 
