@@ -347,7 +347,7 @@
          * a newline.
          */
         copyToClipboardWithNewLine: function (text) {
-            const s = text.endswith("\n") ? text : text + "\n";
+            const s = text.endsWith("\n") ? text : text + "\n";
             this.copyToClipboard(s);
         },
 
