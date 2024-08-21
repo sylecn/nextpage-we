@@ -1559,6 +1559,15 @@
     };
 
     /**
+     * join potential relative URL to absolute URL, using given baseURL.
+     * return the new url as a String.
+     */
+    let joinURL = function (baseURL, hrefValue) {
+        const url = new URL(hrefValue, baseURL);
+        return url.toString();
+    };
+
+    /**
      * copy direct download link on a supported website.
      */
     let copyDownloadLink = function () {
@@ -1571,9 +1580,11 @@
                     "右键查看。",
                     "Right click to view.",
                     "右鍵查看。",
+                    "[右键点击复制链接地址]",
                 ];
                 if (linkTexts.includes(link.textContent)) {
                     linkText = link.getAttribute('href');
+                    linkText = joinURL(url, linkText);
                     break;
                 }
             }

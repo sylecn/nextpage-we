@@ -13,5 +13,5 @@ check:
 	@echo "running eslint..."
 	@./node_modules/.bin/eslint src/*.js    # see also ./.eslintrc.js
 	@echo "running misc/test-regexp.js..."
-	@if which node >/dev/null 2>/dev/null; then node misc/test-regexp.js; else jjs misc/test-regexp.js; fi
+	@if which node >/dev/null 2>/dev/null; then node misc/test-regexp.js; node misc/test-functions.js; else jjs misc/test-regexp.js; jjs misc/test-functions.js; fi
 .PHONY: all firefox chrome check
