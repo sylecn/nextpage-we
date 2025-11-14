@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023, 2024 Yuanle Song <sylecn@gmail.com>
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023, 2024, 2025 Yuanle Song <sylecn@gmail.com>
 //
 // The JavaScript code in this page is free software: you can
 // redistribute it and/or modify it under the terms of the GNU
@@ -239,6 +239,8 @@
         [/https?:\/\/www\.google\.com\/transliterate/i, "*"],
         [/http:\/\/typing.sjz.io\//i, "*"],
         [/https:\/\/qwerty.kaiyi.cool\//i, "*"],
+        // one-kvm, pi-kvm
+        [/https:\/\/.*\/kvm\//i, "*"],
         // exception rule, pipermail or mailing list archives is not webmail.
         [/mail\..*\/(pipermail|archives)/i, ""],
         // ignore common webmail hosts, nextpage bindings can do little on

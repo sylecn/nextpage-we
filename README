@@ -1,6 +1,6 @@
 * COMMENT -*- mode: org -*-
 #+Date: 2017-02-24
-Time-stamp: <2023-12-22>
+Time-stamp: <2025-11-14>
 
 * Rewrite nextpage add-on using WebExtensions
 
@@ -187,6 +187,11 @@ https://developer.mozilla.org/en-US/docs/Web/API/Element/auxclick_event
 press middle button on the example here doesn't work either.
 
 * done								      :entry:
+** 2025-11-14 do not activate nextpage on one-kvm web UI.
+test page
+https://192.168.2.17/
+also ignore on pi-kvm, iLO, iDrac and other IPMI web UI.
+
 ** 2023-12-22 fix issue #60 www.google.com should click on "More Results"
 - the link
   #+begin_quote
