@@ -147,7 +147,26 @@ not sure why.
 ** 
 ** 2025-11-14 gh issue Extension Icon Click Support #62
 - click extension icon should go to nextpage.
-** 2025-11-14 https://eu.startpage.com/ next page not working in German locale #61
+  let user config which command to run when user click the icon.
+
+  (bind "icon-click" 'nextpage)    ; this is the default
+  (bind "icon-click" 'copy-title-and-url)
+- make click work. then add customize support.
+
+  when you define your own popup or action, the default click action is
+  override.
+
+- gpt: can I capture icon click event in content_script? I don't want to
+  introduce background script.
+
+  nope.
+  you have to use bg script or service worker.
+
+  I need to break goto-nextpage function to a library/module, so both content
+  script and service worker script can import the same code.
+
+  //this requires quite a lot of work.
+
 ** 2023-07-04 make preferences window support dark-mode if browser theme is dark-mode.
 ** 2023-07-04 I would like to add a context menu item to copy-title-and-url,
 especially when hotkey is disabled on the page. is that possible?
@@ -190,6 +209,24 @@ https://developer.mozilla.org/en-US/docs/Web/API/Element/auxclick_event
 press middle button on the example here doesn't work either.
 
 * done								      :entry:
+** 2025-11-14 https://eu.startpage.com/ next page not working in German locale #61
+- try this.
+  LANG=de_DE.UTF-8 ~/bin/chrome --user-data-dir="$HOME/.config/google-chrome-local"
+  https://eu.startpage.com/
+
+  no. I can't reproduce this issue.
+- in startpage web search settings
+  startpage language: Deutsch
+
+  yes. I can confirm the bug. now next button is in Germany, and fail in nextpage.
+  Weiter
+
+  #+begin_quote
+  <button tabindex="0" class="css-ocm99y" type="submit" data-testid="pagination-button" role="link">Weiter</button>
+  #+end_quote
+
+  that's easy to fix. update the regex.
+
 ** 2025-11-14 do not activate nextpage on one-kvm web UI.
 test page
 https://192.168.2.17/
