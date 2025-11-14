@@ -22,6 +22,8 @@
     <h1>Nextpage Add-on Help</h1>
     <h3>Overview</h3>
     <p>Nextpage allows you to configure hotkeys and enable/disable features via preferences page. If you sign in your browser, the configuration is synchronized across devices.</p>
+    <h4>Notes to old users (nextpage v2.x)</h4>
+    <p>In nextpage v3.x, the default keybinding for <code>p</code> key has changed from <code>history-back</code> to <code>previous-page</code>, which is considered a more useful default binding. If you prefer the old behavior, add this in nextpage user config: <code>(bind "p" 'history-back)</code></p>
     <h4>Notes to old users (nextpage v1.x)</h4>
     <p>If you have used user config file before nextpage v2.0, you need to copy your config to the user config area in add-on preferences. The old config file ~/.config/nextpage.lisp is no longer read by nextpage after v2.0 when nextpage is rewritten in <a href="https://developer.mozilla.org/en-US/Add-ons/WebExtensions">Web Extension</a>.</p>
     <h3>About User Config</h3>
@@ -75,6 +77,7 @@
 (ignore-on "https://.*\.example\.com/")
 
 ;; bind p to previous-page instead of the default history-back
+;; this is already the default in nextpage v3.x
 (bind "p" 'previous-page)
 
 ;; allow mouse scroll to goto next page when at bottom of page

@@ -5,7 +5,7 @@
     const STORAGE_KEY_PARSED_CONFIG = 'user-config-parsed';
     const DEFAULT_CONFIG_TEXT = '(bind "SPC" \'nextpage-maybe)\n' +
           '(bind "n" \'nextpage)\n' +
-          '(bind "p" \'history-back)\n';
+          '(bind "p" \'previous-page)\n';
 
     const logTextarea = document.getElementById("log");
     /**
