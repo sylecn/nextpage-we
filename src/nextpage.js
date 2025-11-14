@@ -826,7 +826,7 @@
 
         // TODO make this regexp configurable. user config should be named
         // extra-next-pattern, or use a function (add-next-pattern PATTERN).
-        var nextPattern = /(?:(^|>)(next[ _]page|Weiter|Nächste Seite|la page suivante|следующей страницы)(<|$)|(^|>\s*)(next( +page)?|nächste|Suivant|Следующая)(\s*<|$|( |&nbsp;|\u00A0){1,2}?(?:→|›|▸|»|›|>>|&(gt|#62|#x3e);)|1?\.(?:gif|jpg|png|webp))|^(→|›|▸|»|››| ?(&(gt|#62|#x3e);)+ ?)$|(下|后)一?(?:页|糗事|章|回|頁|张)|^(Next Chapter|Thread Next|Go to next page|Next Topic)|(&nbsp;| )»[ \t\n]*$)/i;
+        var nextPattern = /(?:(^|>)(next[ _]page|Avanti|Pagina successiva|التالअगला|ي|आगे|다음|다음 페이지|次へ|Далее|Следующая страница|Próximo|Próxima página|Siguiente|Página siguiente|Weiter|Nächste Seite|Suivant|(la)? page suivante|следующей страницы)(<|$)|(^|>\s*)(next( +page)?|nächste|Suivant|Следующая)(\s*<|$|( |&nbsp;|\u00A0){1,2}?(?:→|›|▸|»|›|>>|&(gt|#62|#x3e);)|1?\.(?:gif|jpg|png|webp))|^(→|›|▸|»|››| ?(&(gt|#62|#x3e);)+ ?)$|(下|后)一?(?:页|糗事|章|回|頁|张)|^(Next Chapter|Thread Next|Go to next page|Next Topic)|(&nbsp;| )»[ \t\n]*$)/i;
         return nextPattern.test(str) || nextPattern.test(str.slice(1, -1));
     };
 

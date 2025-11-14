@@ -227,6 +227,9 @@ press middle button on the example here doesn't work either.
 
   that's easy to fix. update the regex.
 
+- also add support for some other languages.
+  gpt: can you show me most popular "next" or "next page" phrase in most popular languages across the globe?
+
 ** 2025-11-14 do not activate nextpage on one-kvm web UI.
 test page
 https://192.168.2.17/
