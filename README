@@ -145,6 +145,12 @@ I don't know whether hotkey key events are exposed in other ways.
 not sure why.
 * todos								      :entry:
 ** 
+** 2025-11-14 translate the extension to more languages.
+- title
+- description
+- preferences UI
+- user guide html
+
 ** 2025-11-14 gh issue Extension Icon Click Support #62
 - click extension icon should go to nextpage.
   let user config which command to run when user click the icon.
