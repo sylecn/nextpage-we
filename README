@@ -1,6 +1,6 @@
 * COMMENT -*- mode: org -*-
 #+Date: 2017-02-24
-Time-stamp: <2025-11-14>
+Time-stamp: <2025-11-27>
 
 * Rewrite nextpage add-on using WebExtensions
 
@@ -172,6 +172,16 @@ not sure why.
   script and service worker script can import the same code.
 
   //this requires quite a lot of work.
+
+- 2025-11-27 I think another way is to add an option to add a floating prev
+  page, next page button on the page. on touch device, you can toggle that in
+  preferences and get the buttons.
+
+  if I can capture swipe gesture event, that is the best. enable that by
+  default. then also release the firefox extension for mobile/android.
+
+  swipe to right > prev page
+  swipe to left > next page
 
 ** 2023-07-04 make preferences window support dark-mode if browser theme is dark-mode.
 ** 2023-07-04 I would like to add a context menu item to copy-title-and-url,
