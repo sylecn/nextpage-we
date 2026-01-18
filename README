@@ -1,6 +1,5 @@
 * COMMENT -*- mode: org -*-
 #+Date: 2017-02-24
-Time-stamp: <2025-11-27>
 
 * Rewrite nextpage add-on using WebExtensions
 
@@ -182,6 +181,134 @@ not sure why.
 
   swipe to right > prev page
   swipe to left > next page
+
+  cc47: firefox extension, in a page script, how to add event handler for touch
+  device swipe left & swipe right gesture?
+
+- 2026-01-18
+  #+begin_quote
+  ● User answered Claude's questions:
+  · Should the implementation support vertical swipe gestures (up/down) in addition to horizontal swipes (left/right)? Vertical swipes could map to scroll-up/scroll-down commands. → Horizontal only (left/right)
+  · Should the swipe threshold be configurable by users, or use a fixed value (50px)? → Fixed threshold (50px)
+  · How should the implementation handle page scrolling during swipe detection? → Allow scrolling
+  #+end_quote
+  cp ~/.claude/plans/sprightly-tinkering-snowflake.md ./dev-docs/adding-swipe-support.md
+
+- problems
+  - does Emacs support swipe events? what's the key notation for touch events?
+
+    Touchscreen Events (GNU Emacs Lisp Reference Manual)
+    https://www.gnu.org/software/emacs/manual//html_node/elisp/Touchscreen-Events.html
+
+    //there is no key notation there.
+
+  - how do I test the code? I don't have a touch screen device other than my phone.
+
+    should I just build the android extension?
+
+    search: can I load temporary add-on on firefox android?
+
+    How to load a temporary extension on Firefox for android? - Add-ons - Mozilla Discourse
+    https://discourse.mozilla.org/t/how-to-load-a-temporary-extension-on-firefox-for-android/144442
+
+    mozilla/web-ext: A command line tool to help build, run, and test web extensions
+    https://github.com/mozilla/web-ext
+
+    cnpm i -g web-ext
+    asdf reshim nodejs
+    web-ext --version
+    9.2.0
+
+    https://extensionworkshop.com/documentation/develop/web-ext-command-reference/#web-ext-run
+
+    web-ext --help
+
+    adb devices
+
+    cd ~/projects/firefox/nextpage-we/build/firefox/
+    web-ext run --target=firefox-android --android-device 99211FFBA006CW
+
+    it works. nextpage extension is installed on firefox on my android device (pixel4xl).
+
+  - FIXED default user config settings are not updated in preferences page.
+
+  - FIXED swipe works. left/right is reversed.
+
+  - when scroll on a div that does support scroll, it should not goto
+    next/prev page. similar to when user type hotkey in text input control.
+
+    plan mode
+
+    cc47: when user type hotkey like "n" in HTML text input control, how is
+    the key ignored by the code? @src/nextpage.js
+
+    cc47: when user swipe left or right on a div that natively support
+    scrolling, such as a code block on a blog post, do not trigger nextpage
+    runUserCommand. similar to the userIsTyping() check, there should be a
+    userIsScrolling() check.
+
+    cp ~/.claude/plans/sprightly-tinkering-snowflake.md ./dev-docs/adding-swipe-support.md
+
+    cc47: I renamed the function to elementIsHorizontallyScrollable, update the function to match the feature implied by the new name.
+
+    cc47: before this change, swipe always trigger runUserCommand. after this
+    change, swipe can not trigger runUserCommand at all. check what is
+    wrong. also, how to see console log on firefox android?
+
+    FIXED default user config in src/options.js is not updated. when any user
+    customization is added, default swipe bindings are gone.
+
+    update default user config in src/options.js as well.
+    TODO I do need js modules. to share code between options.js and nextpage.js
+    see if I can integrate js modules just for the default user config object.
+
+  - gpt: on horizontal scrolling object, even when user already scroll to the
+    end, still do not allow runUserCommand. this gives better UX.
+
+  - some page still fail.
+
+    python requests pkg doc.
+    quick start page.
+    scroll on Make a request, 2nd code block.
+
+    (page link is
+    https://docs.python-requests.org/en/latest/user/quickstart/#make-a-request
+    )
+
+    it should not go to next page. but it does.
+
+    test this function:
+    elementIsHorizontallyScrollable(touchTargetElement)
+
+    it's a <pre> tag. scroll overflow.
+    use in console.
+    let element = temp0;
+    let style = window.getComputedStyle(element);
+    let overflowX = style.overflowX;
+    let isOverflowScrollable = (overflowX === 'auto' || overflowX === 'scroll');
+    let hasScrollableContent = (element.scrollWidth > element.clientWidth);
+    isOverflowScrollable && hasScrollableContent
+
+    it returns true.
+
+    gpt:
+    on phone, when I touch the same element and swipe left or right.
+    when touch is detected on <PRE>, the scrollable detection works.
+    when touch is detected on <SPAN>, the scrollable detection didn't work.
+
+    here is the code block element:
+    #+begin_src html
+      <pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'https://api.github.com/events'</span><span class="p">)</span>
+      </pre>
+    #+end_src
+
+    so to make the detection work, I guess other than the current element, we
+    should also check whether the parent element and grandparent element is
+    scrollable?
+
+    ---
+    now it works.
+    I like cc47 (glm-4.7).
 
 ** 2023-07-04 make preferences window support dark-mode if browser theme is dark-mode.
 ** 2023-07-04 I would like to add a context menu item to copy-title-and-url,

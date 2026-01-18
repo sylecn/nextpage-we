@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023, 2024, 2025 Yuanle Song <sylecn@gmail.com>
+// Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023, 2024, 2025, 2026 Yuanle Song <sylecn@gmail.com>
 //
 // The JavaScript code in this page is free software: you can
 // redistribute it and/or modify it under the terms of the GNU
@@ -220,6 +220,37 @@
     };
 
     /**
+     * return true if the target element or any of its ancestors support
+     * horizontal scrolling. this includes elements with overflow-x: auto/scroll,
+     * and scrollWidth larger than clientWidth.
+     */
+    let elementIsHorizontallyScrollable = function (element) {
+        if (!element) return false;
+
+        // Walk up the DOM tree to check if element or any ancestor is scrollable
+        let current = element;
+        while (current && current.tagName !== "BODY" && current.tagName !== "HTML") {
+            // Check computed overflow-x style
+            const style = window.getComputedStyle(current);
+            const overflowX = style.overflowX;
+
+            const isOverflowScrollable = (overflowX === 'auto' || overflowX === 'scroll');
+
+            // Check if element has horizontally scrollable content
+            const hasScrollableContent = (current.scrollWidth > current.clientWidth);
+
+            if (isOverflowScrollable && hasScrollableContent) {
+                return true;
+            }
+
+            // Move to parent element
+            current = current.parentElement;
+        }
+
+        return false;
+    };
+
+    /**
      * Some websites use the same hotkeys as nextpage. To prevent nextpage
      * from capturing the hotkeys, add the website and key binding they
      * use in this alist.
@@ -419,6 +450,15 @@
             const shift = e.shiftKey ? "S-": "";
             const re = '<' + ctrl + meta + shift + wheel + '>';
             return re;
+        },
+
+        /**
+         * describe swipe gesture in emacs notation. return a string.
+         * example: <swipe-left>, <swipe-right>
+         */
+        describeSwipeInEmacsNotation: function (direction) {
+            const swipe = "swipe-" + direction;
+            return '<' + swipe + '>';
         },
 
         /**
@@ -1637,10 +1677,18 @@
         log("close-tab is not implemented");
     };
 
+    // Touch swipe detection state
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchTargetElement = null;  // Store element that received touch
+    const SWIPE_THRESHOLD = 50; // Minimum distance for swipe
+
     let bindings = {
         "n": "nextpage",
-        "p": "history-back",
-        "SPC": "nextpage-maybe"
+        "p": "previous-page",
+        "SPC": "nextpage-maybe",
+        "<swipe-left>": "nextpage",
+        "<swipe-right>": "previous-page",
     };
 
     /**
@@ -1745,7 +1793,7 @@
         }
         let key = utils.describeKeyInEmacsNotation(e);
         if (debugKeyEvents()) {
-            log("pressed key in emacs notation: " + key);
+            log("pressed key in Emacs notation: " + key);
         }
         if (userIsTyping()) {
             if (debugKeyEvents()) {
@@ -1835,6 +1883,66 @@
         let command = getBindings()[key];
         if (typeof(command) !== "undefined") {
             runUserCommand(command);
+        }
+    });
+
+    // Touch event handling for swipe gestures
+    document.addEventListener("touchstart", function (e) {
+        if (e.touches.length === 1) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchTargetElement = e.target;  // Store the element that received touch
+            if (debugKeyEvents()) {
+                log("touchstart on element: " + touchTargetElement.tagName);
+            }
+        }
+    });
+
+    // No touchmove listener needed - we allow default scrolling
+
+    document.addEventListener("touchend", function (e) {
+        if (e.changedTouches.length !== 1) {
+            return;
+        }
+
+        // Check if touch started on a scrollable element or any of its ancestors
+        if (touchTargetElement && elementIsHorizontallyScrollable(touchTargetElement)) {
+            if (debugKeyEvents()) {
+                log("touch on scrollable element, ignoring swipe gesture");
+            }
+            return;
+        }
+
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = touchEndY - touchStartY;
+
+        // Detect horizontal swipe (ignore vertical swipes)
+        if (Math.abs(deltaX) > Math.abs(deltaY) &&
+            Math.abs(deltaX) > SWIPE_THRESHOLD) {
+            const direction = deltaX > 0 ? "right" : "left";
+            const key = utils.describeSwipeInEmacsNotation(direction);
+            if (debugKeyEvents()) {
+                log("detected swipe: " + key);
+            }
+            if (skipWebsite(e) || shouldIgnoreKey(key)) {
+                if (debugKeyEvents()) {
+                    log("ignore this swipe event on current website");
+                }
+                return;
+            }
+            if (debugKeyEvents()) {
+                log("will process key: " + key);
+            }
+            let command = getBindings()[key];
+            if (typeof(command) !== "undefined") {
+                runUserCommand(command);
+            } else {
+                if (debugging()) {
+                    log("no associated function with this key");
+                }
+            }
         }
     });
 

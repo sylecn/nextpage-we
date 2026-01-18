@@ -5,7 +5,9 @@
     const STORAGE_KEY_PARSED_CONFIG = 'user-config-parsed';
     const DEFAULT_CONFIG_TEXT = '(bind "SPC" \'nextpage-maybe)\n' +
           '(bind "n" \'nextpage)\n' +
-          '(bind "p" \'previous-page)\n';
+          '(bind "p" \'previous-page)\n' +
+          '(bind "<swipe-left>" \'nextpage)\n' +
+          '(bind "<swipe-right>" \'previous-page)\n';
 
     const logTextarea = document.getElementById("log");
     /**
@@ -86,7 +88,9 @@
         var bindings = {
             "n": "nextpage",
             "p": "history-back",
-            "SPC": "nextpage-maybe"
+            "SPC": "nextpage-maybe",
+            "<swipe-left>": "nextpage",
+            "<swipe-right>": "previous-page",
         };
         var logs = [];
         var line_index;
