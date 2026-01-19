@@ -8,7 +8,8 @@
           '(bind "n" \'nextpage)\n' +
           '(bind "p" \'previous-page)\n' +
           '(bind "<swipe-left>" \'nextpage)\n' +
-          '(bind "<swipe-right>" \'previous-page)\n';
+          '(bind "<swipe-right>" \'previous-page)\n' +
+          '(bind "<swipe-up>" \'nextpage-maybe)\n';
 
     const logTextarea = document.getElementById("log");
     /**
@@ -93,6 +94,7 @@
             "SPC": "nextpage-maybe",
             "<swipe-left>": "nextpage",
             "<swipe-right>": "previous-page",
+            "<swipe-up>": "nextpage-maybe",
         };
         var logs = [];
         var line_index;

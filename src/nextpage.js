@@ -251,6 +251,36 @@
     };
 
     /**
+     * Check if an element or any of its ancestors is vertically scrollable
+     * (overflow-y is auto or scroll and scrollHeight larger than clientHeight).
+     */
+    let elementIsVerticallyScrollable = function (element) {
+        if (!element) return false;
+
+        // Walk up the DOM tree to check if element or any ancestor is scrollable
+        let current = element;
+        while (current && current.tagName !== "BODY" && current.tagName !== "HTML") {
+            // Check computed overflow-y style
+            const style = window.getComputedStyle(current);
+            const overflowY = style.overflowY;
+
+            const isOverflowScrollable = (overflowY === 'auto' || overflowY === 'scroll');
+
+            // Check if element has vertically scrollable content
+            const hasScrollableContent = (current.scrollHeight > current.clientHeight);
+
+            if (isOverflowScrollable && hasScrollableContent) {
+                return true;
+            }
+
+            // Move to parent element
+            current = current.parentElement;
+        }
+
+        return false;
+    };
+
+    /**
      * Some websites use the same hotkeys as nextpage. To prevent nextpage
      * from capturing the hotkeys, add the website and key binding they
      * use in this alist.
@@ -1389,13 +1419,9 @@
             return false;
         }
 
-        if (typeof(window.scrollMaxY) !== 'undefined') {    // firefox
-            // 10px is used as float point comparison delta
-            return window.scrollY + 10 >= window.scrollMaxY;
-        } else {    // chrome
-            // 10px is used as float point comparison delta
-            return window.innerHeight + window.scrollY + 10 >= getDocumentHeight();
-        }
+        // Use scrollHeight-based calculation for all browsers
+        // 10px is used as float point comparison delta
+        return window.innerHeight + window.scrollY + 10 >= getDocumentHeight();
     };
 
     /**
@@ -1406,6 +1432,9 @@
         if (isAtBottom()) {
             // go to next page
             return gotoNextPage();
+        }
+        if (debugGotoNextPage()) {
+            log("not at page bottom, will not goto next page");
         }
         return false;
     };
@@ -1690,6 +1719,7 @@
         "SPC": "nextpage-maybe",
         "<swipe-left>": "nextpage",
         "<swipe-right>": "previous-page",
+        "<swipe-up>": "nextpage-maybe",
     };
 
     /**
@@ -1906,23 +1936,34 @@
             return;
         }
 
-        // Check if touch started on a scrollable element or any of its ancestors
-        if (touchTargetElement && elementIsHorizontallyScrollable(touchTargetElement)) {
-            if (debugKeyEvents()) {
-                log("touch on scrollable element, ignoring swipe gesture");
-            }
-            return;
-        }
-
         const touchEndX = e.changedTouches[0].clientX;
         const touchEndY = e.changedTouches[0].clientY;
         const deltaX = touchEndX - touchStartX;
         const deltaY = touchEndY - touchStartY;
 
-        // Detect horizontal swipe (ignore vertical swipes)
-        if (Math.abs(deltaX) > Math.abs(deltaY) &&
-            Math.abs(deltaX) > SWIPE_THRESHOLD) {
-            const direction = deltaX > 0 ? "right" : "left";
+        // Detect horizontal OR vertical swipe
+        if (Math.abs(deltaX) > SWIPE_THRESHOLD || Math.abs(deltaY) > SWIPE_THRESHOLD) {
+            const isHorizontal = Math.abs(deltaX) > Math.abs(deltaY);
+            const direction = isHorizontal
+                ? (deltaX > 0 ? "right" : "left")
+                : (deltaY > 0 ? "down" : "up");
+
+            // Check if touch started on a scrollable element based on swipe direction
+            if (touchTargetElement) {
+                if (isHorizontal && elementIsHorizontallyScrollable(touchTargetElement)) {
+                    if (debugKeyEvents()) {
+                        log("touch on horizontally scrollable element, ignoring swipe gesture");
+                    }
+                    return;
+                }
+                if (!isHorizontal && elementIsVerticallyScrollable(touchTargetElement)) {
+                    if (debugKeyEvents()) {
+                        log("touch on vertically scrollable element, ignoring swipe gesture");
+                    }
+                    return;
+                }
+            }
+
             const key = utils.describeSwipeInEmacsNotation(direction);
             if (debugKeyEvents()) {
                 log("detected swipe: " + key);

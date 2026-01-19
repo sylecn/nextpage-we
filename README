@@ -214,6 +214,80 @@ https://developer.mozilla.org/en-US/docs/Web/API/Element/auxclick_event
 press middle button on the example here doesn't work either.
 
 * done								      :entry:
+** 2026-01-19 on touch device, when scroll to page bottom, also try to goto next page.
+- only do this on 2nd scroll?
+
+  is that too complicated?
+
+  how about just let user swipe left?
+
+  it's more natural to swipe up though.
+
+- cc47: on touch device, when user try to swipe up when page isAtBottom(), run
+  gotoNextPageMaybe(). I already added default key binding for
+  "<swipe-up>". you implement the rest. @src/nextpage.js
+
+  cc47: 1. currently <swipe-up> is detected, but it didn't trigger go to next
+  page. check whether isAtBottom() works on firefox android.
+
+  2. you should also update the check for
+  elementIsHorizontallyScrollable(), it should only apply when the current
+  touch is swipe-left/right.
+
+  for vertical swipe-up, also check if the element at point is vertically
+  scrollable. auto skip the key processing if it is.
+
+- added log. confirmed it's isAtBottom() bug on firefox android.
+
+  window.scrollY
+  5424.7001953125
+
+  window.scrollMaxY
+  5488 
+
+  try use a percentage for delta.
+
+  (gain 5424 5488)"64.0 1.2%"
+  diff is 64.
+
+  [window.scrollY,window.scrollMaxY]
+
+  when not at bottom, it's
+  [window.scrollY,window.scrollMaxY]
+  Array [ 5421.86669921875, 5488 ]
+
+  can I use document's scrollY, not window's.
+
+  document.scrollY
+  no such property.
+
+  cc47: on firefox android, when page is already scrolled to bottom, 
+  window.scrollY is 5424.7001953125
+  window.scrollMaxY is 5488 
+
+  why there is such a large delta? I expect them to be very close.
+  how to check whether page is already scrolled to bottom on firefox android?
+
+  ----
+
+  [window.innerHeight + window.scrollY, document.documentElement.scrollHeight]
+
+  cc47: how do I get scrollHeight? both window.scrollHeight and document.scrollHeight are undefined?
+
+  should be document.documentElement.scrollHeight
+
+  it works.
+
+  when not at bottom:
+  [window.innerHeight + window.scrollY, document.documentElement.scrollHeight]
+  Array [ 6167.86669921875, 6234 ]
+
+  when at bottom:
+  [window.innerHeight + window.scrollY, document.documentElement.scrollHeight]
+  Array [ 6234.7001953125, 6234 ]
+
+  // both firefox and chrome use old chrome's code path. it works on firefox android.
+
 ** 2026-01-19 google search in China/HK region on firefox android failed to go to next page.
 it can't find next page link.
 
