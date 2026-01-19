@@ -23,23 +23,29 @@ https://microsoftedge.microsoft.com/addons/detail/bdgjidjidpokocijgeefmliejkkjan
 You can also search "nextpage" in Firefox/Chrome/Edge add-on/extension site.
 
 ** WebExtensions documents
-Browser Extensions - Mozilla | MDN
-https://developer.mozilla.org/en-US/Add-ons/WebExtensions
-
-Content scripts - Mozilla | MDN
-https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Content_scripts
-Options page - Mozilla | MDN
-https://developer.mozilla.org/en-US/Add-ons/WebExtensions/user_interface/Options_pages
-storage.sync - Mozilla | MDN
-https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/storage/sync
-Publishing your extension - Mozilla | MDN
-https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Publishing_your_WebExtension
-Internationalization - Mozilla | MDN
-https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Internationalization
-Interact with the clipboard - Mozilla | MDN
-https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Interact_with_the_clipboard
-https://developer.mozilla.org/en-US/docs/Web/API/Document/execCommand
-
+- Browser Extensions - Mozilla | MDN
+  https://developer.mozilla.org/en-US/Add-ons/WebExtensions
+- Content scripts - Mozilla | MDN
+  https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Content_scripts
+- Options page - Mozilla | MDN
+  https://developer.mozilla.org/en-US/Add-ons/WebExtensions/user_interface/Options_pages
+- storage.sync - Mozilla | MDN
+  https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/storage/sync
+- Publishing your extension - Mozilla | MDN
+  https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Publishing_your_WebExtension
+- Internationalization - Mozilla | MDN
+  https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Internationalization
+- Interact with the clipboard - Mozilla | MDN
+  https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Interact_with_the_clipboard
+  https://developer.mozilla.org/en-US/docs/Web/API/Document/execCommand
+- Developing extensions for Firefox for Android | Firefox Extension Workshop
+  https://extensionworkshop.com/documentation/develop/developing-extensions-for-firefox-for-android/
+- Firefox built-in consent for data collection and transmission | Firefox Extension Workshop
+  https://extensionworkshop.com/documentation/develop/firefox-builtin-data-consent/
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+- 
 ** Chrome Extension documents
 Developer's Guide - Google Chrome
 https://developer.chrome.com/extensions/devguide
@@ -166,15 +172,6 @@ I don't know whether hotkey key events are exposed in other ways.
 not sure why.
 * todos								      :entry:
 ** 
-** 2026-01-19 first release to firefox android.
-- Developing extensions for Firefox for Android | Firefox Extension Workshop
-  https://extensionworkshop.com/documentation/develop/developing-extensions-for-firefox-for-android/
-- Firefox built-in consent for data collection and transmission | Firefox Extension Workshop
-  https://extensionworkshop.com/documentation/develop/firefox-builtin-data-consent/
-      "data_collection_permissions": {
-        "required": ["none"]
-      }
-- 
 ** 2025-11-14 translate the extension to more languages.
 - title
 - description
@@ -220,6 +217,7 @@ https://developer.mozilla.org/en-US/docs/Web/API/Element/auxclick_event
 press middle button on the example here doesn't work either.
 
 * done								      :entry:
+** 2026-01-19 first release to firefox android.
 ** 2017-10-19 test it on android. is there a swipe event I can bind to?
 add a right arrow button on url bar, also add menu item.
 
