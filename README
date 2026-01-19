@@ -172,6 +172,7 @@ I don't know whether hotkey key events are exposed in other ways.
 not sure why.
 * todos								      :entry:
 ** 
+** 2026-01-19 the user preferences page text looks tiny on chrome. what's wrong?
 ** 2026-01-19 publish 3.2.0 on edge.
 ** 2026-01-19 update intro text on all platforms.
 ** 2025-11-14 translate the extension to more languages.
