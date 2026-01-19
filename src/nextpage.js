@@ -705,7 +705,7 @@
         // query selector can not match on multiple attribute values, so I use
         // multiple css selector ORed together to match on any of the
         // translation of "More results" text.
-        return doc.querySelector('a[aria-label="More results"],a[aria-label="更多结果"],a[aria-label="更多結果"],a[aria-label="Weitere Ergebnisse"]');
+        return doc.querySelector('a[aria-label="More results"],a[aria-label="更多结果"],a[aria-label="更多結果"],a[aria-label="Weitere Ergebnisse"],a[aria-label="More search results"],a[aria-label="更多搜索结果"],a[aria-label="Mehr Suchergebnisse"]');
     };
 
     /**
