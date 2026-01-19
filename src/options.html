@@ -8,8 +8,8 @@
     <style type="text/css">
       .container {
       width: 100%;
-      min-width: 600px;
-      max-width: 600px;
+      min-width: 500px;
+      max-width: 500px;
       margin: auto;
       }
       .row {
@@ -19,16 +19,20 @@
       textarea {
 	  width: 100%;
       }
+      h3 {
+	  font-size: 1em;
+	  margin: 5px 0;
+      }
     </style>
   </head>
 
   <body>
     <div class="container">
-      <h3 id="title">Nextpage Add-on Options</h3>
+      <h3 id="title">nextpage Extension Preferences</h3>
       <div class="row" id="built-in-config-label">Built-in Config:</div>
-      <textarea name="built-in-config" id="built-in-config" rows="5" readonly></textarea>
+      <textarea name="built-in-config" id="built-in-config" rows="7" readonly></textarea>
       <div class="row" id="user-config-label">User Config:</div>
-      <textarea name="user-config" id="user-config" rows="15"></textarea>
+      <textarea name="user-config" id="user-config" rows="10"></textarea>
       <textarea name="log" id="log" rows="4" readonly></textarea>
       <div class="row">
 	<button id="save-and-reload" name="save-and-reload">Save</button>

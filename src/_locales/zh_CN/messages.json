@@ -8,7 +8,7 @@
 	"description": "add-on description"
     },
     "nextPageAddOnOptions": {
-	"message": "下一页扩展配置",
+	"message": "下一页扩展用户选项",
 	"description": "add-on options title"
     },
     "builtInConfig": {

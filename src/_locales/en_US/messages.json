@@ -8,7 +8,7 @@
 	"description": "add-on description"
     },
     "nextPageAddOnOptions": {
-	"message": "Nextpage Add-on Options",
+	"message": "nextpage Extension Preferences",
 	"description": "add-on options title"
     },
     "builtInConfig": {
