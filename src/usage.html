@@ -63,7 +63,10 @@
     <p>This serves an example of how to write a user config.</p>
     <pre>(bind "SPC" 'nextpage-maybe)
 (bind "n" 'nextpage)
-(bind "p" 'history-back)
+(bind "p" 'previous-page)
+(bind "&lt;swipe-up&gt;" 'nextpage-maybe)
+(bind "&lt;swipe-left&gt;" 'nextpage)
+(bind "&lt;swipe-right&gt;" 'previous-page)
 </pre>
     <p>Keys are wrapped with double quotes, command is prefixed with single quote. This just mimic emacs <code>(global-set-key (kbd "C-c U") 'rename-uniquely)</code> key-bindings.</p>
     <p>Here are some optional key bindings that is provided in older versions of nextpage. You may add them in your user config file if you like.</p>
@@ -85,6 +88,11 @@
 
 ;; press C key to copy-title-and-url
 (bind "c" 'copy-title-and-url)
+
+;; disable all default swipe bindings
+(bind "&lt;swipe-up&gt;" 'nil)
+(bind "&lt;swipe-left&gt;" 'nil)
+(bind "&lt;swipe-right&gt;" 'nil)
     </pre>
 
     <h4>Bind Command</h4>
