@@ -3,6 +3,7 @@
     'use strict';
     const STORAGE_KEY_USER_CONFIG = 'user-config-text';
     const STORAGE_KEY_PARSED_CONFIG = 'user-config-parsed';
+    // see "how to update default user configuration?" in README file
     const DEFAULT_CONFIG_TEXT = '(bind "SPC" \'nextpage-maybe)\n' +
           '(bind "n" \'nextpage)\n' +
           '(bind "p" \'previous-page)\n' +
@@ -85,6 +86,7 @@
     let parseUserConfig = function (userConfig) {
         var noerror = true;
         var variables = {};
+        // see "how to update default user configuration?" in README file
         var bindings = {
             "n": "nextpage",
             "p": "history-back",

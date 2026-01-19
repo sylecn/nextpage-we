@@ -5,4 +5,5 @@ cd "$dir"
 
 make firefox
 cd build/firefox/
-web-ext run --target=firefox-android --android-device 99211FFBA006CW
+ANDROID_DEVICE_ID=${ANDROID_DEVICE_ID:-99211FFBA006CW}
+web-ext run --target=firefox-android --android-device "$ANDROID_DEVICE_ID"

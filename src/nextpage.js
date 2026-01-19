@@ -1683,6 +1683,7 @@
     let touchTargetElement = null;  // Store element that received touch
     const SWIPE_THRESHOLD = 50; // Minimum distance for swipe
 
+    // see "how to update default user configuration?" in README file
     let bindings = {
         "n": "nextpage",
         "p": "previous-page",
