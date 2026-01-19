@@ -1,6 +1,16 @@
 nextpage browser extension changelog
 -------------------------------------
 
+* 2026-01-19 nextpage v3.2.0
+  - add swipe support on touch device.
+    default keybindings
+    swipe-left   goto next page
+    swipe-right  goto previous page
+    swipe-up     when at page bottom, goto next page
+
+  - released for firefox android for the first time
+  - fix support on google search result
+
 * 2025-11-14 nextpage v3.0.2
   v3.x breaking change
   - change default binding for p key to previous-page, was history-back.

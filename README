@@ -166,6 +166,15 @@ I don't know whether hotkey key events are exposed in other ways.
 not sure why.
 * todos								      :entry:
 ** 
+** 2026-01-19 first release to firefox android.
+- Developing extensions for Firefox for Android | Firefox Extension Workshop
+  https://extensionworkshop.com/documentation/develop/developing-extensions-for-firefox-for-android/
+- Firefox built-in consent for data collection and transmission | Firefox Extension Workshop
+  https://extensionworkshop.com/documentation/develop/firefox-builtin-data-consent/
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+- 
 ** 2025-11-14 translate the extension to more languages.
 - title
 - description
